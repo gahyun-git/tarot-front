@@ -59,7 +59,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
 
 function Card(props: { position: number; is_reversed: boolean; card: { name: string; image_url?: string | null }; onClick?: ()=>void }) {
   return (
-    <button onClick={props.onClick} className="text-left border rounded p-2 hover:shadow focus:shadow">
+    <button onClick={props.onClick} className="text-left border rounded p-2 hover:shadow focus:shadow" data-card="1">
       <div className="text-sm text-gray-500">#{props.position} {props.is_reversed ? "(Reversed)" : ""}</div>
       <div className="font-medium">{props.card.name}</div>
       {props.card.image_url && (
