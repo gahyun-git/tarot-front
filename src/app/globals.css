@@ -2,7 +2,17 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a; /* slate-900 */
+  --surface: #ffffff;
+  --border: #e5e7eb; /* zinc-200 */
+  --muted: #475569; /* slate-600 */
+  --primary: #0f172a; /* slate-900 */
+  --primary-contrast: #ffffff;
+  --radius: 14px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg: 0 18px 40px rgba(0,0,0,.22);
+  --accent-1: #7c3aed;
+  --accent-2: #06b6d4;
 }
 
 @theme inline {
@@ -14,18 +24,172 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b0f19; /* slate-950 */
+    --foreground: #e2e8f0; /* slate-200 */
+    --surface: #0f172a; /* slate-900 */
+    --border: #1f2937; /* slate-800 */
+    --muted: #94a3b8; /* slate-400 */
+    --primary: #e2e8f0; /* light text */
+    --primary-contrast: #0a0a0a;
   }
 }
 
-.dark :root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+.dark {
+  --background: #0b0f19;
+  --foreground: #e2e8f0;
+  --surface: #0f172a;
+  --border: #1f2937;
+  --muted: #94a3b8;
+  --primary: #e2e8f0;
+  --primary-contrast: #0a0a0a;
+}
+
+/* 강제 라이트 테마 변수 (미디어쿼리보다 뒤에 선언하여 우선 적용) */
+.light {
+  --background: #ffffff;
+  --foreground: #171717;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --muted: #6b7280;
+  --primary: #111827;
+  --primary-contrast: #ffffff;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-pretendard, Arial, Helvetica, sans-serif);
+  position: relative;
+}
+
+/* Background texture (subtle noise) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+/* Card back pattern utility */
+.card-back {
+  background-image:
+    radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--foreground) 10%, transparent), transparent 40%),
+    radial-gradient(circle at 80% 30%, color-mix(in oklab, var(--foreground) 8%, transparent), transparent 40%),
+    repeating-linear-gradient(45deg, color-mix(in oklab, var(--foreground) 7%, transparent) 0 6px, transparent 6px 12px);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.light .card-back {
+  background-color: #f4f4f5; /* zinc-100 */
+  border-color: #e4e4e7; /* zinc-200 */
+}
+
+/* Reusable UI tokens */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: white;
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  box-shadow: var(--shadow-sm);
+  transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.btn:active { transform: translateY(0) scale(.985); opacity: .95; }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  color: var(--foreground);
+  transition: transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
+}
+.btn-outline:hover { background: color-mix(in oklab, var(--surface) 85%, var(--foreground)); transform: translateY(-1px); }
+.btn-outline:active { transform: translateY(0) scale(.985); }
+
+.badge { font-size: 12px; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
+.badge { background: linear-gradient(180deg, var(--primary) 0%, color-mix(in oklab, var(--primary) 85%, black) 100%); color: var(--primary-contrast); border: 1px solid color-mix(in oklab, var(--primary) 60%, white 40%); box-shadow: var(--shadow-sm); }
+
+/* glassy badge for overlays */
+.badge-glass { backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: color-mix(in oklab, var(--surface) 30%, transparent);
+  color: #fff; border: 1px solid rgba(255,255,255,.22); border-radius: 10px; padding: 4px 8px; box-shadow: var(--shadow-sm);
+}
+
+.card-box { border-radius: 0.75rem; box-shadow: 0 10px 20px rgba(0,0,0,.25); outline: 1px solid var(--border); }
+
+.divider { border-top: 1px solid var(--border); }
+
+.input {
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+.glass {
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* 마크다운 컬러 하이라이트 */
+.prose h3 { font-size: 1.1rem; margin: .75rem 0 .25rem; }
+.prose p { margin: .25rem 0; }
+.prose ul { margin: .25rem 0 .5rem 1rem; }
+.prose li::marker { color: var(--accent-2); }
+.prose strong { color: var(--accent-1); }
+.prose code { background: color-mix(in oklab, var(--surface) 90%, transparent); padding: 2px 6px; border-radius: 6px; }
+
+/* Accordion / panel */
+.accordion { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.accordion > summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: var(--foreground); background: linear-gradient(180deg, color-mix(in oklab, var(--surface) 96%, black), var(--surface)); }
+.accordion > summary::-webkit-details-marker { display: none; }
+.accordion > summary::after { content: "▾"; margin-left: auto; transition: transform .2s ease; }
+.accordion[open] > summary::after { transform: rotate(-180deg); }
+.accordion > *:not(summary) { background: color-mix(in oklab, var(--surface) 92%, transparent); padding: 12px 14px; }
+.accordion .accordion-content { max-height: 0; overflow: hidden; opacity: 0; transition: max-height .35s ease, opacity .35s ease; }
+.accordion[open] .accordion-content { max-height: 1200px; opacity: 1; }
+
+/* Result list card */
+.result-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: color-mix(in oklab, var(--surface) 96%, transparent); box-shadow: var(--shadow-sm); }
+.result-item .title { font-weight: 600; margin-bottom: 6px; }
+
+.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { border: 1px solid var(--border); padding: 6px 10px; border-radius: 20px; background: color-mix(in oklab, var(--surface) 96%, transparent); text-decoration: none; color: var(--foreground); font-size: 12px; }
+.toc a:hover { border-color: var(--accent-2); }
+
+/* 카드 하단 이름 바: 가독성 강화 */
+.card-namebar { position: absolute; inset-inline: 0; bottom: 0; padding: 8px 10px; color: #fff;
+  background: linear-gradient(180deg, rgba(0,0,0,.0) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.65) 100%);
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+/* 결과 아이템 박스화 강화 */
+.result-item { display: grid; gap: 6px; }
+.result-item .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.result-item .title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.result-item .left-accent { border-left: 3px solid color-mix(in oklab, var(--accent-2) 70%, var(--foreground)); padding-left: 10px; }
+
+/* pill style for floating close button */
+.pill-btn { border-radius: 999px; padding: 8px 12px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: color-mix(in oklab, var(--surface) 40%, transparent); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+
+/* 썸네일 */
+.thumb-wrap { width: 28px; height: 40px; display: inline-block; border-radius: 4px; overflow: hidden; box-shadow: var(--shadow-sm); }
+
+@media print {
+  body { background: #fff !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print { display: none !important; }
+  .accordion > summary { background: #f1f5f9 !important; color: #0f172a !important; }
+  .result-item, .accordion, .card-box { box-shadow: none !important; border-color: #cbd5e1 !important; }
 }

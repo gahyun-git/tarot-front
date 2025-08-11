@@ -13,9 +13,15 @@ export default function Modal({ open, onClose, children }: { open: boolean; onCl
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="bg-white rounded shadow max-w-lg w-full p-4">
-          <div className="flex justify-end"><button className="px-2 py-1" onClick={onClose}>✕</button></div>
-          <div>{children}</div>
+        <div className="bg-[var(--surface)] text-[var(--foreground)] rounded-xl shadow-2xl ring-1 ring-[var(--border)] max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+          <div className="sticky top-0 z-10 flex justify-end p-3 bg-[var(--surface)]/70 backdrop-blur rounded-t-xl">
+            <button className="pill-btn" onClick={onClose} aria-label="닫기">
+              닫기
+            </button>
+          </div>
+          <div className="p-4">
+            {children}
+          </div>
         </div>
       </div>
     </div>

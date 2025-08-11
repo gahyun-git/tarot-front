@@ -9,6 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "lz-string": "^1.5.0",
+    "@tanstack/react-query": "^5.84.2",
+    "framer-motion": "^11.18.2",
+    "html-to-image": "^1.11.13",
+    "jspdf": "^2.5.2",
     "next": "^15",
     "react": "^19",
     "react-dom": "^19"

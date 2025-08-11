@@ -1,3 +1,27 @@
+# Deploy (Cloudflare Pages)
+
+## Environment Variables (Production/Preview)
+
+Add the following to Pages project settings → Environment variables:
+
+```
+TAROT_API_BASE_URL=https://tarot-api-r89b.onrender.com
+# Choose one auth mode
+# TAROT_API_KEY=...            # API Key mode (simple)
+# or
+# TAROT_HMAC_SECRET=...        # HMAC mode (recommended)
+TAROT_CLIENT_ID=web-app
+```
+
+## Custom Domain
+
+```
+Frontend (Pages): www.go4it.site
+Backend (Render): api.go4it.site (CNAME → <render-subdomain>.onrender.com)
+```
+
+Update next.config.ts images.remotePatterns when switching to api.go4it.site and redeploy.
+
 # tarot-front
 
 ## 환경변수
