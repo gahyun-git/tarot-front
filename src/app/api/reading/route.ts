@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+export const runtime = 'edge';
 import { createHmac, createHash } from "node:crypto";
 
 const UPSTREAM = (process.env.UPSTREAM_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "").trim();

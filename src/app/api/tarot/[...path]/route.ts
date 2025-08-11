@@ -10,6 +10,18 @@ const API_KEY = (process.env.TAROT_API_KEY || "").trim();
 const HMAC_SECRET = (process.env.TAROT_HMAC_SECRET || "").trim();
 const CLIENT_ID = (process.env.TAROT_CLIENT_ID || "tarot-front").trim();
 
+export const runtime = 'edge';
+
+function toHex(input: ArrayBuffer | Uint8Array): string {
+  const bytes = input instanceof Uint8Array ? input : new Uint8Array(input);
+  let out = '';
+  for (let i = 0; i < bytes.length; i++) {
+    const b = bytes[i].toString(16);
+    out += b.length === 1 ? '0' + b : b;
+  }
+  return out;
+}
+
 function buildTargetPath(params: { path: string[] }) {
   const joined = `/${params.path.join("/")}`;
   return joined;
@@ -46,7 +58,7 @@ async function forwardWithHmac(req: NextRequest, targetPath: string) {
   const ts = Date.now().toString();
   const enc = new TextEncoder();
   const bodyHashBuf = await crypto.subtle.digest("SHA-256", enc.encode(bodyText));
-  const bodyHash = Buffer.from(new Uint8Array(bodyHashBuf)).toString("hex");
+  const bodyHash = toHex(bodyHashBuf);
   const base = `${req.method}\n${targetPath}\n${ts}\n${bodyHash}`;
   const key = await crypto.subtle.importKey(
     "raw",
@@ -56,7 +68,7 @@ async function forwardWithHmac(req: NextRequest, targetPath: string) {
     ["sign"]
   );
   const sigBuf = await crypto.subtle.sign("HMAC", key, enc.encode(base));
-  const sig = Buffer.from(new Uint8Array(sigBuf)).toString("hex");
+  const sig = toHex(sigBuf);
   const url = `${RESOLVED_BASE}${targetPath}${req.nextUrl.search}`;
   const r = await fetch(url, {
     method: req.method,
