@@ -131,9 +131,9 @@ export async function getReadingResult(
 }
 
 // 개별 리딩 원본 조회(카드 목록 등)
-export async function getReading(readingId: string): Promise<ReadingResponse> {
+export async function getReading(): Promise<ReadingResponse> {
   const base = API_BASE.replace(/\/$/, "");
-  const path = `/reading/${readingId}`;
+  const path = `/reading/daily?lang=auto&use_llm=false`;
   const url = `${base}${path}`;
   const r = await fetch(url);
   const data = await r.json().catch(() => ({}));
@@ -157,12 +157,9 @@ export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}
 }
 
 export async function getCardMeanings(cardId: number, params: { lang?: string } = {}) {
-  const search = new URLSearchParams();
-  if (params.lang) search.set("lang", params.lang);
-  const q = search.toString();
   const base = API_BASE.replace(/\/$/, "");
-  const path = `/cards/${cardId}/meanings`;
-  const url = `${base}${path}${q ? `?${q}` : ""}`;
+  const path = `/cards/${cardId}/meanings?lang=${params.lang || 'auto'}`;
+  const url = `${base}${path}`;
   const r = await fetch(url);
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);

@@ -160,11 +160,6 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           </div>
           <div className="mt-2 space-y-1">
            {isFetching && <div className="text-sm text-gray-500">{t("loading.meaning")}</div>}
-           {meaning ? (
-             <MeaningTabs t={t} summary={meaning.summary} keywords={meaning.keywords || []} upright={meaning.upright || ''} reversed={meaning.reversed} />
-           ) : (
-             <div className="text-sm text-gray-500">{t("no.meaning")}</div>
-           )}
             <details className="mt-3">
               <summary className="btn-outline cursor-pointer select-none">{t("modal.cardDetail")}</summary>
               <div className="mt-2 space-y-2 text-sm leading-6">
