@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, VT323, Orbit } from "next/font/google";
 // import localFont from "next/font/local";
 import "./globals.css";
@@ -35,6 +36,10 @@ const orbit = Orbit({
 export const metadata: Metadata = {
   title: "Tarot Front",
   description: "Tarot reading UI",
+  // Add Google AdSense account meta tag
+  other: {
+    'google-adsense-account': 'ca-pub-8015585586602031',
+  },
 };
 
 export default function RootLayout({
@@ -49,6 +54,12 @@ export default function RootLayout({
         <Providers>
           <TopBar />
           {children}
+          <Script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8015585586602031"
+            crossOrigin="anonymous"
+            data-cfasync="false"
+          />
         </Providers>
       </body>
     </html>
