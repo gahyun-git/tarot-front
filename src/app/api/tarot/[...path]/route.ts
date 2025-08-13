@@ -137,7 +137,7 @@ export async function GET(
       id: "local-daily",
       question: "오늘의 카드",
       order: ["A", "B", "C"],
-      count: 1,
+      count: 3,
       items: [
         {
           position: 1,
@@ -150,6 +150,32 @@ export async function GET(
             image_url: null,
             upright_meaning: ["성공", "생기", "낙관"],
             reversed_meaning: ["과잉 자신감", "지연", "불확실"],
+          },
+        },
+        {
+          position: 2,
+          is_reversed: false,
+          card: {
+            id: 1,
+            name: "The Magician",
+            arcana: "Major",
+            suit: null,
+            image_url: null,
+            upright_meaning: ["의지", "집중", "실행"],
+            reversed_meaning: ["산만", "기만", "지연"],
+          },
+        },
+        {
+          position: 3,
+          is_reversed: false,
+          card: {
+            id: 2,
+            name: "The High Priestess",
+            arcana: "Major",
+            suit: null,
+            image_url: null,
+            upright_meaning: ["직관", "침착", "내면의 지혜"],
+            reversed_meaning: ["비밀", "혼란", "자기 의심"],
           },
         },
       ],
