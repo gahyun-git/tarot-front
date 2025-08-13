@@ -11,6 +11,7 @@ import NextImage, { type ImageLoader } from "next/image";
 import { getCard, postInterpretReading, getReadingResult } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 import { useI18n } from "@/lib/i18n";
+import { getSpreadLabels } from "@/lib/spreads";
 import { useQuery } from "@tanstack/react-query";
 
 function usePositionLabel() {
@@ -62,6 +63,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
     alert(t("share.copied"));
   }, [data, t]);
   const posLabel = usePositionLabel();
+  const spreadLabels = getSpreadLabels(data.items.length, t);
   return (
     <section className="space-y-4 pb-28 md:pb-0 space-panel p-4">
       <div className="flex items-center justify-between">
@@ -134,7 +136,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           <div className="text-lg font-semibold">{focus.card.name} {focus.is_reversed ? `(${t('badge.reversed')})` : ""}</div>
           <div className="flex flex-wrap gap-2 text-xs opacity-80">
             <span className="space-chip">#{focus.position}</span>
-            <span className="space-chip">{posLabel(focus.position)}</span>
+            <span className="space-chip">{spreadLabels[focus.position - 1] || posLabel(focus.position)}</span>
             {focus.is_reversed ? <span className="space-chip">{t('orientation.reversed')}</span> : <span className="space-chip">{t('orientation.upright')}</span>}
           </div>
           {focus.card.image_url && (
@@ -152,34 +154,11 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           )}
           <div className="mt-2 space-y-1">
            {isFetching && <div className="text-sm text-gray-500">{t("loading.meaning")}</div>}
-          {meaning ? (
-            <div className="grid gap-1">
-              {meaning.keywords?.length && meaning.keywords.length>0 && (
-                <div className="flex flex-wrap gap-2 items-center text-sm">
-                  <span className="font-semibold">{t("label.keywords")}</span>
-                  <div className="flex flex-wrap gap-2">{meaning.keywords.map((k,i)=>(<span key={i} className="space-chip" title={k}>{k}</span>))}</div>
-                </div>
-              )}
-              <details className="space-card p-3">
-                <summary className="cursor-pointer flex items-center gap-2">
-                  <span className="space-chip">{t("orientation.upright")}</span>
-                  <span className="text-sm opacity-80">{meaning.upright?.slice(0, 40)}...</span>
-                </summary>
-                <div className="mt-2 text-sm leading-6 whitespace-pre-wrap">{meaning.upright}</div>
-              </details>
-              {meaning.reversed && (
-                <details className="space-card p-3">
-                  <summary className="cursor-pointer flex items-center gap-2">
-                    <span className="space-chip">{t("orientation.reversed")}</span>
-                    <span className="text-sm opacity-80">{meaning.reversed.slice(0, 40)}...</span>
-                  </summary>
-                  <div className="mt-2 text-sm leading-6 whitespace-pre-wrap">{meaning.reversed}</div>
-                </details>
-              )}
-            </div>
-          ) : (
-              <div className="text-sm text-gray-500">{t("no.meaning")}</div>
-            )}
+           {meaning ? (
+             <MeaningTabs t={t} summary={meaning.summary} keywords={meaning.keywords || []} upright={meaning.upright || ''} reversed={meaning.reversed} />
+           ) : (
+             <div className="text-sm text-gray-500">{t("no.meaning")}</div>
+           )}
             <details className="mt-3">
               <summary className="btn-outline cursor-pointer select-none">{t("modal.cardDetail")}</summary>
               <div className="mt-2 space-y-2 text-sm leading-6">
@@ -221,6 +200,28 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
         )}
       </section>
     </section>
+  );
+}
+
+function MeaningTabs({ t, summary, keywords, upright, reversed }: { t: (k:string)=>string; summary?: string; keywords: string[]; upright: string; reversed?: string }) {
+  const [tab, setTab] = useState<'sum'|'kw'|'up'|'rev'>('kw');
+  return (
+    <div className="space-panel p-3">
+      <div role="tablist" aria-label="meaning" className="flex gap-2 mb-2">
+        <button role="tab" aria-selected={tab==='sum'} className={`space-chip ${tab==='sum'?'on':''}`} onClick={()=>setTab('sum')}>{t('tab.summary')}</button>
+        <button role="tab" aria-selected={tab==='kw'} className={`space-chip ${tab==='kw'?'on':''}`} onClick={()=>setTab('kw')}>{t('tab.keywords')}</button>
+        <button role="tab" aria-selected={tab==='up'} className={`space-chip ${tab==='up'?'on':''}`} onClick={()=>setTab('up')}>{t('tab.upright')}</button>
+        {reversed && <button role="tab" aria-selected={tab==='rev'} className={`space-chip ${tab==='rev'?'on':''}`} onClick={()=>setTab('rev')}>{t('tab.reversed')}</button>}
+      </div>
+      <div role="tabpanel">
+        {tab==='sum' && (<div className="text-sm whitespace-pre-wrap">{summary || upright}</div>)}
+        {tab==='kw' && (
+          <div className="flex flex-wrap gap-2">{keywords && keywords.length ? keywords.map((k,i)=>(<span key={i} className="space-chip" title={k}>{k}</span>)) : <span className="text-sm opacity-80">-</span>}</div>
+        )}
+        {tab==='up' && (<div className="text-sm whitespace-pre-wrap">{upright}</div>)}
+        {tab==='rev' && reversed && (<div className="text-sm whitespace-pre-wrap">{reversed}</div>)}
+      </div>
+    </div>
   );
 }
 
