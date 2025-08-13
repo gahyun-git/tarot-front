@@ -1,9 +1,11 @@
 import Markdown from "@/components/Markdown";
 import { loadMarkdown } from "@/lib/content";
 
-export default async function ContentPage({ params, searchParams }: { params: { slug: string[] }, searchParams: { lang?: string } }) {
-  const lang = (searchParams?.lang || "ko").toLowerCase();
-  const slugParts = Array.isArray(params.slug) ? params.slug : [params.slug];
+export default async function ContentPage({ params, searchParams }: { params: Promise<{ slug: string[] }>, searchParams: Promise<{ lang?: string }> }) {
+  const p = await params;
+  const sp = await searchParams;
+  const lang = (sp?.lang || "ko").toLowerCase();
+  const slugParts = Array.isArray(p.slug) ? p.slug : [p.slug as unknown as string];
   const md = await loadMarkdown(slugParts, lang);
   if (!md) {
     return (
