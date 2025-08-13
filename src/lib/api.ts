@@ -129,3 +129,17 @@ export async function getReadingResult(
   if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
   return data as ReadingResultText;
 }
+
+export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}) {
+  const search = new URLSearchParams();
+  if (params.lang) search.set("lang", params.lang);
+  if (typeof params.use_llm === "boolean") search.set("use_llm", String(params.use_llm));
+  const q = search.toString();
+  const base = API_BASE.replace(/\/$/, "");
+  const path = `/reading/daily`;
+  const url = `${base}${path}${q ? `?${q}` : ""}`;
+  const r = await fetch(url);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
+  return data as { id?: string; items?: unknown[]; text?: string };
+}

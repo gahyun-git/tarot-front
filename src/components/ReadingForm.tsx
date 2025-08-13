@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { GroupOrder, ReadingResponse } from "@/lib/api";
 import GroupOrderPicker from "@/components/GroupOrderPicker";
 import { useI18n } from "@/lib/i18n";
-import { postReading } from "@/lib/api";
+import { postReading, getDaily } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
 
 export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess: (data: ReadingResponse) => void; onLoadingChange?: (v: boolean)=>void }) {
@@ -45,6 +45,20 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
     });
   };
 
+  const daily = async () => {
+    setLoading(true); onLoadingChange?.(true); setError(null);
+    try {
+      const d: { id?: string; text?: string } = await getDaily({ lang: "auto", use_llm: false });
+      if (d?.id) {
+        window.location.href = `/reading/${d.id}`;
+      } else {
+        alert(d?.text || "No content");
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "request failed");
+    } finally { setLoading(false); onLoadingChange?.(false); }
+  };
+
   const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
   // 마운트 후에만 텍스트/i18n 값 바인딩 → SSR/CSR 일치 보장
@@ -63,10 +77,13 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
         <input type="checkbox" checked={allowReversed} onChange={(e)=>setAllowReversed(e.target.checked)} /> <span suppressHydrationWarning>{mounted ? t("form.reversed") : ""}</span>
       </label>
       <span id="help-reversed" className="text-xs text-gray-400 -mt-2" suppressHydrationWarning>{mounted ? t("form.help.reversed") : ""}</span>
+      <div className="flex gap-3 items-center">
       <button className="space-btn w-40 disabled:opacity-50 inline-flex items-center justify-center gap-2" onClick={submit} disabled={loading || mutation.isPending || question.trim().length === 0}>
         {(loading || mutation.isPending) && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
         <span suppressHydrationWarning>{mounted ? (loading || mutation.isPending ? t("form.loading") : t("form.draw8")) : ""}</span>
       </button>
+      <button className="retro-btn-outline" type="button" onClick={daily}>오늘의 카드</button>
+      </div>
       {error && (
         <div className="text-red-600 flex items-center gap-2" role="alert" aria-live="assertive">
           <span>{error}</span>
