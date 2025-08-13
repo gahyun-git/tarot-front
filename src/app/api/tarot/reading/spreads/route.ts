@@ -1,9 +1,8 @@
-import { NextRequest } from "next/server";
 export const runtime = 'edge';
 
 const UPSTREAM = (process.env.UPSTREAM_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "").trim();
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   if (UPSTREAM) {
     try {
       const r = await fetch(`${UPSTREAM.replace(/\/$/, '')}/reading/spreads`);

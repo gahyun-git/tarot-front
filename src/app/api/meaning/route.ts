@@ -3,7 +3,7 @@ export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
+  searchParams.get("id");
   const name = searchParams.get("name");
 
   // 목 데이터: id/name 일부에 대해 간단한 텍스트 반환

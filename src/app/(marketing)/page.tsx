@@ -4,7 +4,7 @@ import { useI18n } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 
 export default function MarketingHome() {
-  const { t } = useI18n();
+  useI18n();
   const [mounted, setMounted] = useState(false);
   useEffect(()=> setMounted(true), []);
   return (
