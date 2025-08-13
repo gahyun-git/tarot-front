@@ -61,6 +61,7 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
 
   const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
+  const [selectedSpread, setSelectedSpread] = useState<string | null>(null);
   // 마운트 후에만 텍스트/i18n 값 바인딩 → SSR/CSR 일치 보장
   useEffect(() => { setMounted(true); }, []);
   // 폼 진입 시 선택된 스프레드 적용(데모: eight 선택 시 draw8 그대로, daily는 상단 버튼에서 처리)
@@ -73,6 +74,7 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
         } else if (s === 'eight') {
           setShuffleTimes(3); // 그대로 유지하지만 확장을 대비
         }
+        setSelectedSpread(s);
       }
       localStorage.removeItem('selected_spread');
     } catch {}
@@ -87,6 +89,11 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
         <span suppressHydrationWarning>{mounted ? t("form.groupOrder") : ""}</span>
         <GroupOrderPicker value={order} onChange={(v)=> setOrder(v as typeof order)} />
       </div>
+      {selectedSpread && (
+        <div className="text-xs text-gray-400 -mb-2" suppressHydrationWarning>
+          {mounted ? t('form.selectedSpread') : ''}: {selectedSpread === 'daily' ? t('spread.daily') : t('spread.eight')}
+        </div>
+      )}
       <label className="inline-flex items-center gap-2" aria-describedby="help-reversed">
         <input type="checkbox" checked={allowReversed} onChange={(e)=>setAllowReversed(e.target.checked)} /> <span suppressHydrationWarning>{mounted ? t("form.reversed") : ""}</span>
       </label>
