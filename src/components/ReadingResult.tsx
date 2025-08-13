@@ -156,7 +156,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
               {meaning.keywords.length>0 && (
                 <div className="flex flex-wrap gap-2 items-center text-sm">
                   <span className="font-semibold">{t("label.keywords")}</span>
-                  <div className="flex flex-wrap gap-2">{meaning.keywords.map((k,i)=>(<span key={i} className="space-chip">{k}</span>))}</div>
+                  <div className="flex flex-wrap gap-2">{meaning.keywords.map((k,i)=>(<span key={i} className="space-chip" title={k}>{k}</span>))}</div>
                 </div>
               )}
               <details className="space-card p-3">

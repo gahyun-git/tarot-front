@@ -9,7 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess: (data: ReadingResponse) => void; onLoadingChange?: (v: boolean)=>void }) {
   const [question, setQuestion] = useState("");
   const [order, setOrder] = useState<["A","B","C"] | ["A","C","B"] | ["B","A","C"] | ["B","C","A"] | ["C","A","B"] | ["C","B","A"]>(["A","B","C"]);
-  const [shuffleTimes] = useState(3);
+  const [shuffleTimes, setShuffleTimes] = useState(3);
   const [seed] = useState<string>("");
   const [allowReversed, setAllowReversed] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -67,8 +67,12 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
   useEffect(()=>{
     try {
       const s = localStorage.getItem('selected_spread');
-      if (s && s === 'eight') {
-        // 이미 8장 기본값
+      if (s) {
+        if (s === 'daily') {
+          // 폼 대신 상단 daily 버튼에서 처리 → 여기서는 특별히 변경 없음
+        } else if (s === 'eight') {
+          setShuffleTimes(3); // 그대로 유지하지만 확장을 대비
+        }
       }
       localStorage.removeItem('selected_spread');
     } catch {}
