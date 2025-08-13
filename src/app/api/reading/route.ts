@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
   const seed = typeof payload.seed === "number" ? payload.seed : 42;
   const rng = mulberry32(seed);
   const pickReversed = () => payload.allow_reversed && rng() < 0.35;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const image = (i: number) =>
     `https://raw.githubusercontent.com/vercel/next.js/canary/examples/image-component/public/vercel.png`;
 

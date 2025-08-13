@@ -1,7 +1,9 @@
 export type CardMeaning = {
-  keywords: string[];
-  upright: string;
-  reversed?: string;
+  title?: string;
+  keywords?: string[];    // 키워드 칩
+  upright?: string;       // 정위 텍스트(조합)
+  reversed?: string;      // 역위 텍스트(조합)
+  summary?: string;       // 요약
 };
 
 // NOTE: 실제 데이터 연결 전까지는 비어 있을 수 있습니다.

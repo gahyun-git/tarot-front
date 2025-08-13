@@ -4,10 +4,15 @@ import { getMeaning, type CardMeaning } from "@/lib/meanings";
 import { getCard, getCardMeanings } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 
+export type EnhancedMeaning = CardMeaning & {
+  uprightList?: string[];
+  reversedList?: string[];
+};
+
 export function useCardMeaning(id?: number, name?: string) {
   const { locale } = useI18n();
   const local = getMeaning(id, name);
-  const q = useQuery<{ meaning: CardMeaning | null }>({
+  const q = useQuery<{ meaning: EnhancedMeaning | null }>({
     queryKey: ["card-meaning", id ?? name],
     queryFn: async () => {
       if (!id && !name) return { meaning: null };
@@ -16,7 +21,15 @@ export function useCardMeaning(id?: number, name?: string) {
         try {
           const m = await getCardMeanings(id, { lang: locale });
           if ((m.upright && m.upright.length) || (m.reversed && m.reversed.length)) {
-            return { meaning: { keywords: [], upright: (m.upright || []).join(", "), reversed: m.reversed?.join(", ") } };
+            return {
+              meaning: {
+                keywords: [],
+                upright: (m.upright || []).join(", "),
+                reversed: m.reversed?.join(", "),
+                uprightList: m.upright || undefined,
+                reversedList: m.reversed || undefined,
+              } as EnhancedMeaning,
+            };
           } else {
             const c = await getCard(id);
             if ((c.upright_meaning && c.upright_meaning.length) || (c.reversed_meaning && c.reversed_meaning.length)) {
@@ -42,16 +55,16 @@ export function useCardMeaning(id?: number, name?: string) {
     staleTime: 1000 * 60 * 60,
   });
 
-  const merged: CardMeaning & { uprightList?: string[]; reversedList?: string[] } | null = q.data?.meaning
+  const merged: EnhancedMeaning | null = q.data?.meaning
     ? {
-        keywords: q.data.meaning.keywords?.length ? q.data.meaning.keywords : (local?.keywords ?? []),
+        keywords: (q.data.meaning.keywords && q.data.meaning.keywords.length ? q.data.meaning.keywords : (local?.keywords ?? [])) as string[],
         upright: q.data.meaning.upright || local?.upright || "",
         reversed: q.data.meaning.reversed || local?.reversed,
         // arrays가 있으면 전달
-        uprightList: (q.data as any)?.uprightList || undefined,
-        reversedList: (q.data as any)?.reversedList || undefined,
+        uprightList: q.data.meaning.uprightList || undefined,
+        reversedList: q.data.meaning.reversedList || undefined,
       }
-    : (local as any);
+    : (local as EnhancedMeaning | null);
 
   return { ...q, meaning: merged };
 }
