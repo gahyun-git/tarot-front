@@ -143,3 +143,26 @@ export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}
   if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
   return data as { id?: string; items?: unknown[]; text?: string };
 }
+
+export async function getCardMeanings(cardId: number, params: { lang?: string } = {}) {
+  const search = new URLSearchParams();
+  if (params.lang) search.set("lang", params.lang);
+  const q = search.toString();
+  const base = API_BASE.replace(/\/$/, "");
+  const path = `/cards/${cardId}/meanings`;
+  const url = `${base}${path}${q ? `?${q}` : ""}`;
+  const r = await fetch(url);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
+  return data as { id: number; lang: string; upright?: string[]; reversed?: string[] };
+}
+
+export async function getSpreads() {
+  const base = API_BASE.replace(/\/$/, "");
+  const path = `/reading/spreads`;
+  const url = `${base}${path}`;
+  const r = await fetch(url);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
+  return data as unknown;
+}
