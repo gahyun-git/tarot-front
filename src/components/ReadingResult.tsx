@@ -146,17 +146,26 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           )}
           <div className="mt-2 space-y-1">
            {isFetching && <div className="text-sm text-gray-500">{t("loading.meaning")}</div>}
-            {meaning ? (
-              <>
-           {meaning.keywords.length>0 && (
-              <div className="text-sm"><span className="font-semibold">{t("label.keywords")}</span>: {meaning.keywords.join(", ")}</div>
-                )}
-                 <div className="text-sm"><span className="font-semibold">{t("orientation.upright")}</span>: {meaning.upright}</div>
-                {meaning.reversed && (
-                  <div className="text-sm"><span className="font-semibold">{t("orientation.reversed")}</span>: {meaning.reversed}</div>
-                )}
-              </>
-            ) : (
+          {meaning ? (
+            <div className="grid gap-1">
+              {meaning.keywords.length>0 && (
+                <div className="flex flex-wrap gap-2 items-center text-sm">
+                  <span className="font-semibold">{t("label.keywords")}</span>
+                  <div className="flex flex-wrap gap-2">{meaning.keywords.map((k,i)=>(<span key={i} className="space-chip">{k}</span>))}</div>
+                </div>
+              )}
+              <div className="flex items-start gap-2">
+                <span className="space-chip">{t("orientation.upright")}</span>
+                <span className="text-sm leading-6">{meaning.upright}</span>
+              </div>
+              {meaning.reversed && (
+                <div className="flex items-start gap-2">
+                  <span className="space-chip">{t("orientation.reversed")}</span>
+                  <span className="text-sm leading-6">{meaning.reversed}</span>
+                </div>
+              )}
+            </div>
+          ) : (
               <div className="text-sm text-gray-500">{t("no.meaning")}</div>
             )}
             <details className="mt-3">

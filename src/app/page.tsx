@@ -5,6 +5,7 @@ import { decompressFromEncodedURIComponent } from "lz-string";
 import ReadingForm from "@/components/ReadingForm";
 import ReadingResultSkeleton from "@/components/ReadingResultSkeleton";
 import History from "@/components/History";
+import SpreadPicker from "@/components/SpreadPicker";
 import type { ReadingResponse } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { addToHistory } from "@/lib/history";
@@ -63,6 +64,8 @@ export default function Home() {
         <h2 className="text-xl font-extrabold mb-3" suppressHydrationWarning>{mounted ? t("form.title") : ""}</h2>
         <ReadingForm onSuccess={(d)=>{ setResult(d); try { const id = addToHistory(d); window.location.href = `/reading/${id}`; } catch { window.location.href = `/reading/local`; } }} onLoadingChange={setLoading} />
       </section>
+
+      <SpreadPicker />
 
       {loading && <ReadingResultSkeleton />}
       {!loading && (
