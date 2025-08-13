@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { decompressFromEncodedURIComponent } from "lz-string";
 import ReadingForm from "@/components/ReadingForm";
 import ReadingResultSkeleton from "@/components/ReadingResultSkeleton";
@@ -52,7 +53,7 @@ export default function Home() {
           </div>
           <div className="flex gap-3">
             <a className="space-btn" href="#form" suppressHydrationWarning>{mounted ? t("form.title") : ""}</a>
-            <a className="space-btn-ghost" href="/content/spread/three-cards?lang=ko">가이드</a>
+            <Link className="space-btn-ghost" href="/content/spread/three-cards?lang=ko">가이드</Link>
           </div>
         </div>
         <div className="gold-stars" aria-hidden />

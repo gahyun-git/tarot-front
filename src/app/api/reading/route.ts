@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       });
       const body = await r.json();
       return Response.json(body, { status: r.status });
-    } catch (e) {
+    } catch {
       return Response.json({ error: { code: "upstream_unreachable", message: "백엔드 연결 실패" } }, { status: 502 });
     }
   }
