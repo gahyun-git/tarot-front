@@ -131,6 +131,11 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
         <div className="space-y-2">
           <div className="text-sm text-gray-500">#{focus.position} {posLabel(focus.position)}</div>
           <div className="text-lg font-semibold">{focus.card.name} {focus.is_reversed ? `(${t('badge.reversed')})` : ""}</div>
+          <div className="flex flex-wrap gap-2 text-xs opacity-80">
+            <span className="space-chip">#{focus.position}</span>
+            <span className="space-chip">{posLabel(focus.position)}</span>
+            {focus.is_reversed ? <span className="space-chip">{t('orientation.reversed')}</span> : <span className="space-chip">{t('orientation.upright')}</span>}
+          </div>
           {focus.card.image_url && (
             <div className="relative w-full aspect-[2/3] md:h-[72vh] md:max-h-[72vh] md:w-auto mx-auto">
               <NextImage

@@ -25,7 +25,8 @@ export default function SpreadPicker() {
     } finally { setLoading(false); }
   };
 
-  const goForm = () => {
+  const goForm = (id: string) => {
+    try { localStorage.setItem('selected_spread', id); } catch {}
     document.querySelector('#form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -42,7 +43,7 @@ export default function SpreadPicker() {
               {s.id === 'daily' ? (
                 <button className="space-btn" onClick={runDaily} disabled={loading}>{t('daily.button')}</button>
               ) : (
-                <button className="space-btn" onClick={goForm}>{t('btn.use')}</button>
+                <button className="space-btn" onClick={()=>goForm(s.id)}>{t('btn.use')}</button>
               )}
             </div>
           </li>

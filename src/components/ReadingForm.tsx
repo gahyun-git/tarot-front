@@ -63,6 +63,16 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
   const [mounted, setMounted] = useState(false);
   // 마운트 후에만 텍스트/i18n 값 바인딩 → SSR/CSR 일치 보장
   useEffect(() => { setMounted(true); }, []);
+  // 폼 진입 시 선택된 스프레드 적용(데모: eight 선택 시 draw8 그대로, daily는 상단 버튼에서 처리)
+  useEffect(()=>{
+    try {
+      const s = localStorage.getItem('selected_spread');
+      if (s && s === 'eight') {
+        // 이미 8장 기본값
+      }
+      localStorage.removeItem('selected_spread');
+    } catch {}
+  }, []);
   return (
     <div className="grid gap-4">
       <label className="grid gap-1">
