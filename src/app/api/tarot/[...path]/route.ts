@@ -117,6 +117,10 @@ export async function GET(
       { status: 405, headers: { Allow: "POST" } }
     );
   }
+  // 개별 리딩 원본 조회 허용: GET /api/tarot/reading/{id}
+  if (/^\/reading\/[^/]+$/.test(targetPath)) {
+    return forwardGet(req, targetPath);
+  }
   // 기본적으로 읽기 엔드포인트는 인증 없이 프록시
   return forwardGet(req, targetPath);
 }

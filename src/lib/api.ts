@@ -130,6 +130,17 @@ export async function getReadingResult(
   return data as ReadingResultText;
 }
 
+// 개별 리딩 원본 조회(카드 목록 등)
+export async function getReading(readingId: string): Promise<ReadingResponse> {
+  const base = API_BASE.replace(/\/$/, "");
+  const path = `/reading/${readingId}`;
+  const url = `${base}${path}`;
+  const r = await fetch(url);
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
+  return data as ReadingResponse;
+}
+
 export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}) {
   const search = new URLSearchParams();
   if (params.lang) search.set("lang", params.lang);

@@ -24,8 +24,29 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // local mock
-  return Response.json({ id: "local-daily", text: "오늘의 카드: The Sun — 좋은 에너지가 함께합니다." });
+  // local mock: 상세 화면이 렌더될 수 있도록 최소 ReadingResponse 반환
+  const mock = {
+    id: "local-daily",
+    question: "오늘의 카드",
+    order: ["A","B","C"],
+    count: 1,
+    items: [
+      {
+        position: 1,
+        is_reversed: false,
+        card: {
+          id: 19, // The Sun 예시
+          name: "The Sun",
+          arcana: "Major",
+          suit: null,
+          image_url: null,
+          upright_meaning: ["성공", "생기", "낙관"],
+          reversed_meaning: ["과잉 자신감", "지연", "불확실"]
+        }
+      }
+    ]
+  };
+  return Response.json(mock);
 }
 
 

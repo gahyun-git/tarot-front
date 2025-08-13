@@ -3,7 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ReadingResult from "@/components/ReadingResult";
 import type { ReadingResponse } from "@/lib/api";
-import { getHistoryById } from "@/lib/history";
+import { addToHistory, getHistoryById } from "@/lib/history";
+import { getReading } from "@/lib/api";
 
 export default function ReadingDetail() {
   const router = useRouter();
@@ -12,9 +13,19 @@ export default function ReadingDetail() {
   const [data, setData] = useState<ReadingResponse | null>(null);
 
   useEffect(()=>{
-    const item = id ? getHistoryById(id) : null;
-    if (!item) { router.replace("/"); return; }
-    setData(item.data);
+    (async () => {
+      if (!id) { router.replace("/"); return; }
+      const item = getHistoryById(id);
+      if (item) { setData(item.data); return; }
+      // 히스토리에 없으면 백엔드에서 조회 시도 → 조회 성공 시 히스토리에 저장 후 로컬 ID로 교체
+      try {
+        const r = await getReading(id);
+        const newLocalId = addToHistory(r);
+        router.replace(`/reading/${newLocalId}`);
+      } catch {
+        router.replace("/");
+      }
+    })();
   }, [id, router]);
 
   if (!data) return null;
