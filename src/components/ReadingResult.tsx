@@ -64,6 +64,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
     setCopyOpen(true);
   }, [data, t]);
   const posLabel = usePositionLabel();
+  const isDaily = data.count === 1;
   const spreadLabels = getSpreadLabels(data.items.length, t);
   return (
     <section className="space-y-4 pb-28 md:pb-0 space-panel p-4">
@@ -121,9 +122,9 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
                    {pos===8 && (
                     <div className="text-xs text-gray-500 mb-1 hidden md:block text-left md:text-left">{t("label.solutionCard")}</div>
                    )}
-                   <Card
+                  <Card
                     {...it}
-                     label={posLabel(it.position)}
+                     label={isDaily ? undefined : posLabel(it.position)}
                     revealed={revealedSet.has(pos)}
                     delay={delayFor(pos)}
                     onClick={()=>{
@@ -146,19 +147,17 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
             <span className="space-chip">{spreadLabels[focus.position - 1] || posLabel(focus.position)}</span>
             {focus.is_reversed ? <span className="space-chip">{t('orientation.reversed')}</span> : <span className="space-chip">{t('orientation.upright')}</span>}
           </div>
-          {focus.card.image_url && (
-            <div className="relative w-full aspect-[2/3] md:h-[72vh] md:max-h-[72vh] md:w-auto mx-auto">
-              <NextImage
-                loader={passthroughLoader}
-                src={focus.card.image_url}
-                alt={focus.card.name}
-                fill
-                className={`${focus.is_reversed ? "rotate-180" : ""} object-contain`}
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-            </div>
-          )}
+          <div className="relative w-full aspect-[2/3] md:h-[72vh] md:max-h-[72vh] md:w-auto mx-auto">
+            <NextImage
+              loader={passthroughLoader}
+              src={focus.card.image_url || `/static/cards/${String(focus.card.id ?? 0).padStart(2,'0')}.jpg`}
+              alt={focus.card.name}
+              fill
+              className={`${focus.is_reversed ? "rotate-180" : ""} object-contain`}
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+            />
+          </div>
           <div className="mt-2 space-y-1">
            {isFetching && <div className="text-sm text-gray-500">{t("loading.meaning")}</div>}
            {meaning ? (
@@ -185,11 +184,11 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
             .sort((a,b)=> a.position-b.position)
             .map((it)=> (
               <li key={it.position} className="space-card">
-                 <ResultLine position={it.position} label={posLabel(it.position)} id={it.card.id} name={it.card.name} reversed={it.is_reversed} />
+                 <ResultLine position={it.position} label={isDaily ? undefined : posLabel(it.position)} id={it.card.id} name={it.card.name} reversed={it.is_reversed} isDaily={isDaily} />
               </li>
             ))}
         </ul>
-        {data.id && (
+           {data.id && (
           <details className="mt-5 accordion">
             <summary>
               <div className="flex items-center justify-between gap-2">
@@ -234,7 +233,7 @@ function MeaningTabs({ t, summary, keywords, upright, reversed }: { t: (k:string
 
 // overlay 배지는 카드 타일에서는 제거 (요청사항)
 
-function Card(props: { position: number; is_reversed: boolean; label?: string; card: { name: string; image_url?: string | null }; revealed?: boolean; delay?: number; onClick?: ()=>void }) {
+function Card(props: { position: number; is_reversed: boolean; label?: string; card: { id?: number; name: string; image_url?: string | null }; revealed?: boolean; delay?: number; onClick?: ()=>void }) {
   return (
     <motion.button
       onClick={props.onClick}
@@ -246,51 +245,42 @@ function Card(props: { position: number; is_reversed: boolean; label?: string; c
     >
       <div className="w-full relative rounded-xl overflow-hidden retro-card" style={{ aspectRatio: 2/3 }}>
         {props.label && (<span className="space-chip absolute top-1 left-1 z-10">{props.label}</span>)}
-        {props.card.image_url ? (
-          <motion.div
-            className="absolute inset-0"
-            animate={{ rotateY: props.revealed ? 0 : 180 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-            style={{ transformStyle: "preserve-3d", perspective: 1000 }}
-          >
-            <div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
-              <NextImage
-                loader={passthroughLoader}
-                src={props.card.image_url}
-                alt={props.card.name}
-                fill
-                className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
-                sizes="(max-width: 768px) 100vw, 33vw"
-                style={{ filter: "none" }}
-              />
-            </div>
-            <div className="absolute inset-0" style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}>
-              <NextImage
-                loader={passthroughLoader}
-                src={props.card.image_url}
-                alt={props.card.name}
-                fill
-                className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
-                sizes="(max-width: 768px) 100vw, 33vw"
-                style={{ filter: "blur(12px) saturate(0.85) brightness(0.9)" }}
-              />
-            </div>
-          </motion.div>
-        ) : (
-          <div className="absolute inset-0 grid place-items-center" style={{ background: "linear-gradient(135deg, rgba(102,51,153,0.35), rgba(255,215,0,0.15))" }}>
-            <span className="text-xs opacity-80 px-2 py-1 rounded-md ring-1 ring-white/10 bg-black/20">
-              {props.card.name}
-            </span>
-            <div className="absolute inset-0 transition-all" style={{ backdropFilter: props.revealed ? "none" : "blur(10px)", background: props.revealed ? "transparent" : "rgba(0,0,0,0.25)" }} />
+        <motion.div
+          className="absolute inset-0"
+          animate={{ rotateY: props.revealed ? 0 : 180 }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          style={{ transformStyle: "preserve-3d", perspective: 1000 }}
+        >
+          <div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
+            <NextImage
+              loader={passthroughLoader}
+              src={props.card.image_url || `/static/cards/${String(props.card.id ?? 0).padStart(2,'0')}.jpg`}
+              alt={props.card.name}
+              fill
+              className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
+              sizes="(max-width: 768px) 100vw, 33vw"
+              style={{ filter: "none" }}
+            />
           </div>
-        )}
+          <div className="absolute inset-0" style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}>
+            <NextImage
+              loader={passthroughLoader}
+              src={props.card.image_url || `/static/cards/${String(props.card.id ?? 0).padStart(2,'0')}.jpg`}
+              alt={props.card.name}
+              fill
+              className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
+              sizes="(max-width: 768px) 100vw, 33vw"
+              style={{ filter: "blur(12px) saturate(0.85) brightness(0.9)" }}
+            />
+          </div>
+        </motion.div>
         <div className="card-namebar text-xs font-medium">{props.card.name}</div>
       </div>
     </motion.button>
   );
 }
 
-function ResultLine({ position, label, id, name, reversed }: { position: number; label: string; id: number; name: string; reversed: boolean }) {
+function ResultLine({ position, label, id, name, reversed, isDaily }: { position: number; label?: string; id: number; name: string; reversed: boolean; isDaily?: boolean }) {
   const { t } = useI18n();
   const { meaning, isFetching } = useCardMeaning(id, name);
   return (
@@ -300,7 +290,7 @@ function ResultLine({ position, label, id, name, reversed }: { position: number;
           <span className="thumb-wrap">
             <MiniThumb id={id} reversed={reversed} />
           </span>
-          <div className="title">#{position} {label} — {name} {reversed ? `(${t('badge.reversed')})` : ''}</div>
+          <div className="title">{isDaily ? name : `#${position} ${label ?? ''} — ${name}`} {reversed ? `(${t('badge.reversed')})` : ''}</div>
         </div>
         <div className="meta">
           <span className="badge">{reversed ? t('badge.reversed') : t('badge.upright')}</span>
@@ -309,7 +299,7 @@ function ResultLine({ position, label, id, name, reversed }: { position: number;
       {isFetching && <div className="text-sm text-gray-500">{t('loading.meaning')}</div>}
       {meaning && (
         <div className="mt-1 text-sm space-y-1">
-          {meaning.keywords?.length && meaning.keywords.length>0 && <div><strong>{t('label.keywords')}</strong>: {meaning.keywords.join(', ')}</div>}
+           {meaning.keywords?.length && meaning.keywords.length>0 && <div><strong>{t('label.keywords')}</strong>: {meaning.keywords.join(', ')}</div>}
           <div><strong>{t('orientation.upright')}</strong>: {meaning.upright}</div>
           {meaning.reversed && <div><strong>{t('orientation.reversed')}</strong>: {meaning.reversed}</div>}
         </div>
