@@ -117,6 +117,31 @@ export async function GET(
       { status: 405, headers: { Allow: "POST" } }
     );
   }
+  // 로컬 목 ID 처리: /reading/local-daily → 목 ReadingResponse 반환
+  if (targetPath === "/reading/local-daily") {
+    const mock = {
+      id: "local-daily",
+      question: "오늘의 카드",
+      order: ["A", "B", "C"],
+      count: 1,
+      items: [
+        {
+          position: 1,
+          is_reversed: false,
+          card: {
+            id: 19,
+            name: "The Sun",
+            arcana: "Major",
+            suit: null,
+            image_url: null,
+            upright_meaning: ["성공", "생기", "낙관"],
+            reversed_meaning: ["과잉 자신감", "지연", "불확실"],
+          },
+        },
+      ],
+    };
+    return NextResponse.json(mock);
+  }
   // 개별 리딩 원본 조회 허용: GET /api/tarot/reading/{id}
   if (/^\/reading\/[^/]+$/.test(targetPath)) {
     return forwardGet(req, targetPath);
