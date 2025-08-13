@@ -5,6 +5,7 @@ import GroupOrderPicker from "@/components/GroupOrderPicker";
 import { useI18n } from "@/lib/i18n";
 import { postReading, getDaily } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess: (data: ReadingResponse) => void; onLoadingChange?: (v: boolean)=>void }) {
   const [question, setQuestion] = useState("");
@@ -45,18 +46,22 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
     });
   };
 
+  const router = useRouter();
+  const [dailyLoading, setDailyLoading] = useState(false);
   const daily = async () => {
+    setDailyLoading(true);
     setLoading(true); onLoadingChange?.(true); setError(null);
     try {
       const d: { id?: string; text?: string } = await getDaily({ lang: "auto", use_llm: false });
       if (d?.id) {
-        window.location.href = `/reading/${d.id}`;
+        try { router.prefetch(`/reading/${d.id}`); } catch {}
+        await router.push(`/reading/${d.id}`);
       } else {
         alert(d?.text || "No content");
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "request failed");
-    } finally { setLoading(false); onLoadingChange?.(false); }
+    } finally { setLoading(false); onLoadingChange?.(false); setDailyLoading(false); }
   };
 
   const { t } = useI18n();
@@ -103,10 +108,16 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
         {(loading || mutation.isPending) && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
         <span suppressHydrationWarning>{mounted ? (loading || mutation.isPending ? t("form.loading") : t("form.draw8")) : ""}</span>
       </button>
-      <button className="space-btn-ghost" type="button" onClick={daily} suppressHydrationWarning>
+      <button className="space-btn-ghost" type="button" onClick={daily} suppressHydrationWarning disabled={dailyLoading}>
+        {dailyLoading && (<span className="inline-block h-4 w-4 mr-2 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
         {mounted ? t('daily.button') : ''}
       </button>
       </div>
+      {dailyLoading && (
+        <div className="space-progress mt-1" aria-live="polite">
+          <div className="bar" style={{ width: '66%' }} />
+        </div>
+      )}
       {error && (
         <div className="text-red-600 flex items-center gap-2" role="alert" aria-live="assertive">
           <span>{error}</span>
