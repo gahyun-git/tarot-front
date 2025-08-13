@@ -153,7 +153,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
            {isFetching && <div className="text-sm text-gray-500">{t("loading.meaning")}</div>}
           {meaning ? (
             <div className="grid gap-1">
-              {meaning.keywords.length>0 && (
+              {meaning.keywords?.length && meaning.keywords.length>0 && (
                 <div className="flex flex-wrap gap-2 items-center text-sm">
                   <span className="font-semibold">{t("label.keywords")}</span>
                   <div className="flex flex-wrap gap-2">{meaning.keywords.map((k,i)=>(<span key={i} className="space-chip" title={k}>{k}</span>))}</div>
@@ -162,7 +162,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
               <details className="space-card p-3">
                 <summary className="cursor-pointer flex items-center gap-2">
                   <span className="space-chip">{t("orientation.upright")}</span>
-                  <span className="text-sm opacity-80">{meaning.upright.slice(0, 40)}...</span>
+                  <span className="text-sm opacity-80">{meaning.upright?.slice(0, 40)}...</span>
                 </summary>
                 <div className="mt-2 text-sm leading-6 whitespace-pre-wrap">{meaning.upright}</div>
               </details>
@@ -298,7 +298,7 @@ function ResultLine({ position, label, id, name, reversed }: { position: number;
       {isFetching && <div className="text-sm text-gray-500">{t('loading.meaning')}</div>}
       {meaning && (
         <div className="mt-1 text-sm space-y-1">
-          {meaning.keywords.length>0 && <div><strong>{t('label.keywords')}</strong>: {meaning.keywords.join(', ')}</div>}
+          {meaning.keywords?.length && meaning.keywords.length>0 && <div><strong>{t('label.keywords')}</strong>: {meaning.keywords.join(', ')}</div>}
           <div><strong>{t('orientation.upright')}</strong>: {meaning.upright}</div>
           {meaning.reversed && <div><strong>{t('orientation.reversed')}</strong>: {meaning.reversed}</div>}
         </div>
