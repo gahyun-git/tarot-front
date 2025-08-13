@@ -42,13 +42,16 @@ export function useCardMeaning(id?: number, name?: string) {
     staleTime: 1000 * 60 * 60,
   });
 
-  const merged: CardMeaning | null = q.data?.meaning
+  const merged: CardMeaning & { uprightList?: string[]; reversedList?: string[] } | null = q.data?.meaning
     ? {
         keywords: q.data.meaning.keywords?.length ? q.data.meaning.keywords : (local?.keywords ?? []),
         upright: q.data.meaning.upright || local?.upright || "",
         reversed: q.data.meaning.reversed || local?.reversed,
+        // arrays가 있으면 전달
+        uprightList: (q.data as any)?.uprightList || undefined,
+        reversedList: (q.data as any)?.reversedList || undefined,
       }
-    : local;
+    : (local as any);
 
   return { ...q, meaning: merged };
 }

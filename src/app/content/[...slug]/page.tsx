@@ -16,7 +16,7 @@ export default async function ContentPage({ params, searchParams }: { params: Pr
     );
   }
   return (
-    <main className="prose prose-invert max-w-3xl mx-auto p-6 space-panel">
+    <main className="prose prose-invert space-panel p-6">
       {/* Markdown is client component; safe to render here */}
       <Markdown text={md.text} />
     </main>

@@ -154,15 +154,21 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
                   <div className="flex flex-wrap gap-2">{meaning.keywords.map((k,i)=>(<span key={i} className="space-chip">{k}</span>))}</div>
                 </div>
               )}
-              <div className="flex items-start gap-2">
-                <span className="space-chip">{t("orientation.upright")}</span>
-                <span className="text-sm leading-6">{meaning.upright}</span>
-              </div>
+              <details className="space-card p-3">
+                <summary className="cursor-pointer flex items-center gap-2">
+                  <span className="space-chip">{t("orientation.upright")}</span>
+                  <span className="text-sm opacity-80">{meaning.upright.slice(0, 40)}...</span>
+                </summary>
+                <div className="mt-2 text-sm leading-6 whitespace-pre-wrap">{meaning.upright}</div>
+              </details>
               {meaning.reversed && (
-                <div className="flex items-start gap-2">
-                  <span className="space-chip">{t("orientation.reversed")}</span>
-                  <span className="text-sm leading-6">{meaning.reversed}</span>
-                </div>
+                <details className="space-card p-3">
+                  <summary className="cursor-pointer flex items-center gap-2">
+                    <span className="space-chip">{t("orientation.reversed")}</span>
+                    <span className="text-sm opacity-80">{meaning.reversed.slice(0, 40)}...</span>
+                  </summary>
+                  <div className="mt-2 text-sm leading-6 whitespace-pre-wrap">{meaning.reversed}</div>
+                </details>
               )}
             </div>
           ) : (
