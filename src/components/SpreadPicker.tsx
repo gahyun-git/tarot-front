@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { getDaily, getSpreads } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
-import Link from "next/link";
 
 type Spread = { id: string; name: string; count: number };
 
