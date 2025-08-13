@@ -114,6 +114,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
                    )}
                    <Card
                     {...it}
+                     label={posLabel(it.position)}
                     revealed={revealedSet.has(pos)}
                     delay={delayFor(pos)}
                     onClick={()=>{
@@ -225,7 +226,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
 
 // overlay 배지는 카드 타일에서는 제거 (요청사항)
 
-function Card(props: { position: number; is_reversed: boolean; card: { name: string; image_url?: string | null }; revealed?: boolean; delay?: number; onClick?: ()=>void }) {
+function Card(props: { position: number; is_reversed: boolean; label?: string; card: { name: string; image_url?: string | null }; revealed?: boolean; delay?: number; onClick?: ()=>void }) {
   return (
     <motion.button
       onClick={props.onClick}
@@ -237,6 +238,7 @@ function Card(props: { position: number; is_reversed: boolean; card: { name: str
     >
       {props.card.image_url && (
         <div className="w-full relative rounded-xl overflow-hidden retro-card" style={{ aspectRatio: 2/3 }}>
+          {props.label && (<span className="space-chip absolute top-1 left-1 z-10">{props.label}</span>)}
           <motion.div
             className="absolute inset-0"
             animate={{ rotateY: props.revealed ? 0 : 180 }}

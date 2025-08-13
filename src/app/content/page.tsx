@@ -4,7 +4,7 @@ import path from "path";
 
 async function listContent(lang: string) {
   const base = path.join(process.cwd(), "public", "content", lang);
-  const out: { href: string; title: string }[] = [];
+  const out: { href: string; title: string; cat: string }[] = [];
   const walk = async (dir: string, prefix: string[] = []) => {
     let entries: string[] = [];
     try { entries = await fs.readdir(dir); } catch { return; }
@@ -14,7 +14,8 @@ async function listContent(lang: string) {
       if (stat.isDirectory()) await walk(p, [...prefix, name]);
       else if (name.endsWith('.md')) {
         const slug = [...prefix, name.replace(/\.md$/, '')];
-        out.push({ href: `/content/${slug.join('/') }?lang=${lang}`, title: slug.join(' / ') });
+        const cat = prefix[0] || "misc";
+        out.push({ href: `/content/${slug.join('/') }?lang=${lang}`, title: slug.join(' / '), cat });
       }
     }
   };
@@ -28,7 +29,7 @@ export default async function ContentIndex({ searchParams }: { searchParams: Pro
   const items = await listContent(lang);
   const q = (sp?.q || '').toLowerCase();
   const cat = (sp?.cat || '').toLowerCase();
-  const filtered = items.filter(it => (!q || it.title.toLowerCase().includes(q)) && (!cat || it.title.toLowerCase().startsWith(cat+"/")));
+  const filtered = items.filter(it => (!q || it.title.toLowerCase().includes(q)) && (!cat || it.cat === cat));
   return (
     <main className="space-panel p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-3">
@@ -51,7 +52,10 @@ export default async function ContentIndex({ searchParams }: { searchParams: Pro
       </div>
       <ul className="grid gap-2">
         {filtered.map((it)=> (
-          <li key={it.href}><Link className="space-chip" href={it.href}>{it.title}</Link></li>
+          <li key={it.href} className="flex items-center gap-2">
+            <span className="space-chip">{it.cat}</span>
+            <Link className="space-chip" href={it.href}>{it.title}</Link>
+          </li>
         ))}
       </ul>
     </main>

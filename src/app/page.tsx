@@ -54,7 +54,7 @@ export default function Home() {
           </div>
           <div className="flex gap-3">
             <a className="space-btn" href="#form" suppressHydrationWarning>{mounted ? t("form.title") : ""}</a>
-            <Link className="space-btn-ghost" href="/content/spread/three-cards?lang=ko">가이드</Link>
+            <Link className="space-btn-ghost" href={`/content?lang=${typeof window !== 'undefined' ? '' : ''}`}>{mounted ? t('btn.guide') : ''}</Link>
           </div>
         </div>
         <div className="gold-stars" aria-hidden />
