@@ -1,14 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { GroupOrder, ReadingResponse } from "@/lib/api";
+import GroupOrderPicker from "@/components/GroupOrderPicker";
+import { useI18n } from "@/lib/i18n";
 import { postReading } from "@/lib/api";
 import { useMutation } from "@tanstack/react-query";
 
 export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess: (data: ReadingResponse) => void; onLoadingChange?: (v: boolean)=>void }) {
   const [question, setQuestion] = useState("");
   const [order, setOrder] = useState<["A","B","C"] | ["A","C","B"] | ["B","A","C"] | ["B","C","A"] | ["C","A","B"] | ["C","B","A"]>(["A","B","C"]);
-  const [shuffleTimes, setShuffleTimes] = useState(3);
-  const [seed, setSeed] = useState<string>("");
+  const [shuffleTimes] = useState(3);
+  const [seed] = useState<string>("");
   const [allowReversed, setAllowReversed] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,40 +45,27 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
     });
   };
 
+  const { t } = useI18n();
+  const [mounted, setMounted] = useState(false);
+  // 마운트 후에만 텍스트/i18n 값 바인딩 → SSR/CSR 일치 보장
+  useEffect(() => { setMounted(true); }, []);
   return (
     <div className="grid gap-4">
       <label className="grid gap-1">
-        <span>Question</span>
-        <input className="input" value={question} onChange={(e)=>setQuestion(e.target.value)} placeholder="올해 커리어 방향?" aria-invalid={question.trim().length===0} />
-        {question.trim().length===0 && <span className="text-sm text-red-600">질문을 입력해 주세요.</span>}
+        <input className="space-input" value={question} onChange={(e)=>setQuestion(e.target.value)} placeholder={mounted ? t("form.placeholder.question") : ""} aria-invalid={question.trim().length===0} />
+        {question.trim().length===0 && <span className="text-sm text-red-600" suppressHydrationWarning>{mounted ? t("form.validation.questionRequired") : ""}</span>}
       </label>
-      <label className="grid gap-1">
-        <span>Group Order</span>
-        <select className="input" value={order.join("")}
-          onChange={(e)=>{
-            const v = e.target.value as "ABC"|"ACB"|"BAC"|"BCA"|"CAB"|"CBA";
-            const map: Record<string, ["A","B","C"]|["A","C","B"]|["B","A","C"]|["B","C","A"]|["C","A","B"]|["C","B","A"]> = {
-              ABC:["A","B","C"], ACB:["A","C","B"], BAC:["B","A","C"], BCA:["B","C","A"], CAB:["C","A","B"], CBA:["C","B","A"],
-            };
-            setOrder(map[v]);
-          }}>
-          {(["ABC","ACB","BAC","BCA","CAB","CBA"] as const).map(o=> <option key={o} value={o}>{o}</option>)}
-        </select>
+      <div className="grid gap-1">
+        <span suppressHydrationWarning>{mounted ? t("form.groupOrder") : ""}</span>
+        <GroupOrderPicker value={order} onChange={(v)=> setOrder(v as typeof order)} />
+      </div>
+      <label className="inline-flex items-center gap-2" aria-describedby="help-reversed">
+        <input type="checkbox" checked={allowReversed} onChange={(e)=>setAllowReversed(e.target.checked)} /> <span suppressHydrationWarning>{mounted ? t("form.reversed") : ""}</span>
       </label>
-      <label className="grid gap-1">
-        <span>Shuffle Times</span>
-        <input type="number" min={1} max={50} className="input w-28" value={shuffleTimes} onChange={(e)=>setShuffleTimes(Number(e.target.value))} />
-      </label>
-      <label className="grid gap-1">
-        <span>Seed (optional)</span>
-        <input className="input w-40" value={seed} onChange={(e)=>setSeed(e.target.value)} placeholder="e.g. 123" />
-      </label>
-      <label className="inline-flex items-center gap-2">
-        <input type="checkbox" checked={allowReversed} onChange={(e)=>setAllowReversed(e.target.checked)} /> Allow Reversed
-      </label>
-      <button className="btn w-40 disabled:opacity-50 inline-flex items-center justify-center gap-2" onClick={submit} disabled={loading || mutation.isPending || question.trim().length === 0}>
+      <span id="help-reversed" className="text-xs text-gray-400 -mt-2" suppressHydrationWarning>{mounted ? t("form.help.reversed") : ""}</span>
+      <button className="space-btn w-40 disabled:opacity-50 inline-flex items-center justify-center gap-2" onClick={submit} disabled={loading || mutation.isPending || question.trim().length === 0}>
         {(loading || mutation.isPending) && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
-        <span>{loading || mutation.isPending ? "Loading..." : "Draw 8 Cards"}</span>
+        <span suppressHydrationWarning>{mounted ? (loading || mutation.isPending ? t("form.loading") : t("form.draw8")) : ""}</span>
       </button>
       {error && (
         <div className="text-red-600 flex items-center gap-2" role="alert" aria-live="assertive">

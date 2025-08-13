@@ -2,15 +2,20 @@
 import { useEffect, useState } from "react";
 import { decompressFromEncodedURIComponent } from "lz-string";
 import ReadingForm from "@/components/ReadingForm";
-import ReadingResult from "@/components/ReadingResult";
 import ReadingResultSkeleton from "@/components/ReadingResultSkeleton";
 import History from "@/components/History";
 import type { ReadingResponse } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
+import { addToHistory } from "@/lib/history";
+// import Link from "next/link";
 
 export default function Home() {
-  const [result, setResult] = useState<ReadingResponse | null>(null);
+  const [, setResult] = useState<ReadingResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useI18n();
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    setMounted(true);
     const hash = typeof window !== "undefined" ? window.location.hash : "";
     const m = hash.match(/#reading=(.+)$/);
     if (m && m[1]) {
@@ -24,12 +29,31 @@ export default function Home() {
     }
   }, []);
   return (
-    <main className="p-6 max-w-3xl mx-auto space-y-6 pb-40">
-      <h1 className="text-2xl font-bold">Tarot Reading</h1>
-      <ReadingForm onSuccess={(d)=>{ setResult(d); try { import("@/lib/history").then(m=> m.addToHistory(d)); } catch {} }} onLoadingChange={setLoading} />
+    <main className="p-6 max-w-5xl mx-auto space-y-8 pb-40">
+      <section className="space-hero p-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center relative">
+        <div className="space-y-4">
+          <div className="text-4xl md:text-5xl font-extrabold leading-tight">
+            <div suppressHydrationWarning>{mounted ? t("hero.heading1") : ""}</div>
+            <div className="text-yellow-500" suppressHydrationWarning>{mounted ? t("hero.heading2") : ""}</div>
+          </div>
+          <div className="flex gap-3">
+            <a className="space-btn" href="#form" suppressHydrationWarning>{mounted ? t("form.title") : ""}</a>
+          </div>
+        </div>
+        <div className="gold-stars" aria-hidden />
+      </section>
+
+      <section id="form" className="space-panel p-6">
+        <h2 className="text-xl font-extrabold mb-3" suppressHydrationWarning>{mounted ? t("form.title") : ""}</h2>
+        <ReadingForm onSuccess={(d)=>{ setResult(d); try { const id = addToHistory(d); window.location.href = `/reading/${id}`; } catch { window.location.href = `/reading/local`; } }} onLoadingChange={setLoading} />
+      </section>
+
       {loading && <ReadingResultSkeleton />}
-      {!loading && result && <ReadingResult data={result} />}
-      {!loading && <History onSelect={setResult} />}
+      {!loading && (
+        <section className="space-panel p-6">
+          <History onSelect={(d)=>{ const id = addToHistory(d); window.location.href = `/reading/${id}`; }} />
+        </section>
+      )}
     </main>
   );
 }

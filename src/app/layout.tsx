@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, VT323, Orbit } from "next/font/google";
 // import localFont from "next/font/local";
 import "./globals.css";
-import ThemeToggle from "@/components/ThemeToggle";
+import TopBar from "@/components/TopBar";
 import Providers from "./providers";
 
 const geistSans = Geist({
@@ -15,6 +15,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const vt323 = VT323({
+  variable: "--font-retro",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const orbit = Orbit({
+  variable: "--font-orbit",
+  weight: ["400"],
+  subsets: ["latin"],
+});
 // const pretendard = localFont({
 //   src: [{ path: "../../public/PretendardVariable.woff2", weight: "45 920" }],
 //   variable: "--font-pretendard",
@@ -31,26 +42,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // client-only parts inside body
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                try{
-                  var saved = localStorage.getItem('theme_dark_v1');
-                  var dark = saved ? saved === '1' : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  var root = document.documentElement;
-                  if(dark){ root.classList.add('dark'); root.classList.remove('light'); }
-                  else { root.classList.add('light'); root.classList.remove('dark'); }
-                }catch(e){}
-              })();
-            `,
-          }}
-        />
+    <html lang="en" className="theme-space-dark" suppressHydrationWarning>
+      <body className={`space-stars ${geistSans.variable} ${geistMono.variable} ${vt323.variable} ${orbit.variable} antialiased`} suppressHydrationWarning>
         <Providers>
-          <div className="p-4 flex justify-end"><div className="max-w-3xl w-full mx-auto"><ThemeToggle /></div></div>
+          <TopBar />
           {children}
         </Providers>
       </body>

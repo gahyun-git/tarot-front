@@ -6,6 +6,11 @@ export default function Head() {
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css"
       />
+      <script 
+        async 
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8015585586602031"
+        crossOrigin="anonymous" 
+        />
     </>
   );
 }

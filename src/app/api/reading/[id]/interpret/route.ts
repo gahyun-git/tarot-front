@@ -13,8 +13,11 @@ function toHex(input: ArrayBuffer | Uint8Array): string {
 
 const UPSTREAM = (process.env.UPSTREAM_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "").trim();
 
-export async function POST(req: NextRequest, context: unknown) {
-  const { params } = context as { params: { id: string } };
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   if (!UPSTREAM) return Response.json({ error: { message: "UPSTREAM not configured" } }, { status: 500 });
   const body = await req.json().catch(()=> ({}));
   const bodyString = JSON.stringify(body);
@@ -25,7 +28,7 @@ export async function POST(req: NextRequest, context: unknown) {
 
   const upstreamBase = UPSTREAM.replace(/\/$/, "");
   const method = "POST";
-  const path = `/reading/${params.id}/interpret`;
+  const path = `/reading/${id}/interpret`;
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   const apiKey = (process.env.API_KEY || "").trim();
   const hmacSecret = (process.env.HMAC_SECRET || "").trim();

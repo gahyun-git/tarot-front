@@ -10,18 +10,13 @@ import { useCardMeaning } from "@/lib/useCardMeaning";
 import NextImage, { type ImageLoader } from "next/image";
 import { getCard, postInterpretReading, getReadingResult } from "@/lib/api";
 import Markdown from "@/components/Markdown";
+import { useI18n } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 
-const labels: Record<number, string> = {
-  1: "이슈",
-  2: "숨은 영향",
-  3: "과거",
-  4: "현재",
-  5: "근미래",
-  6: "내면",
-  7: "외부",
-  8: "솔루션",
-};
+function usePositionLabel() {
+  const { t } = useI18n();
+  return (pos: number) => t(`position.${pos}`);
+}
 
 // Next/Image 커스텀 로더
 // - /static/... 형태(프론트에 파일이 없는 경우)를 백엔드 BASE로 프록시
@@ -59,44 +54,35 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
 
   // 내보내기 기능은 필요 시 활성화
 
+  const { t } = useI18n();
   const handleCopyLink = useCallback(async () => {
     const encoded = compressToEncodedURIComponent(JSON.stringify(data));
     const url = `${window.location.origin}${window.location.pathname}#reading=${encoded}`;
     await navigator.clipboard.writeText(url);
-    alert("공유 링크가 복사되었습니다.");
-  }, [data]);
+    alert(t("share.copied"));
+  }, [data, t]);
+  const posLabel = usePositionLabel();
   return (
-    <section className="space-y-4 pb-28 md:pb-0">
-      <h2 className="text-xl font-semibold">Result</h2>
+    <section className="space-y-4 pb-28 md:pb-0 space-panel p-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold title-retro">{t("result.title")}</h2>
+        {/* 뒤로 버튼 제거 */}
+      </div>
       <div className="md:sticky md:top-2 z-20">
-            <div className="fixed inset-x-0 bottom-0 md:static">
-              <div className="mx-auto md:mx-0 max-w-3xl flex flex-wrap gap-2 border-t md:border rounded-none md:rounded-md px-4 py-3 md:px-3 md:py-2 backdrop-blur bg-[var(--surface)]/80 supports-backdrop-blur:backdrop-blur"
-               style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px))' }}>
-                {/* 결과보기는 하단 텍스트 영역에서 표시 */}
-                {/* <button className="btn-outline" onClick={handleSavePng}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                    <path d="M5 20h14a1 1 0 0 0 1-1v-8h-4V7H8v4H4v8a1 1 0 0 0 1 1zm3-9V9h8v2h3l-7 7-7-7h3z"/>
-                  </svg>
-                  이미지 저장
-                </button> */}
-                {/* <button className="btn-outline" onClick={handleSavePdf}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                    <path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/>
-                  </svg>
-                  PDF 저장
-                </button> */}
-                <button className="btn-outline" onClick={handleCopyLink}>
+            <div className="fixed inset-x-0 bottom-0 md:static z-30">
+                <div className="flex items-center gap-2 md:justify-end">
+                <button className="retro-btn-outline" onClick={handleCopyLink}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                     <path d="M3.9 12a5 5 0 0 1 1.46-3.54l3.1-3.1a5 5 0 0 1 7.07 7.07l-1.06 1.06-1.41-1.41 1.06-1.06a3 3 0 1 0-4.24-4.24l-3.1 3.1A3 3 0 0 0 5.9 12a3 3 0 0 0 .88 2.12l1.06 1.06-1.41 1.41-1.06-1.06A5 5 0 0 1 3.9 12zm6.58 6.64l-1.06 1.06a5 5 0 1 1 7.07-7.07l1.06 1.06-1.41 1.41-1.06-1.06a3 3 0 1 0-4.24 4.24l1.06 1.06-1.41 1.41z"/>
                   </svg>
-                  공유 링크 복사
+                  {t("share.copy")}
                 </button>
+                 </div>
           </div>
-        </div>
         </div>
       {/* 단일 그리드: md에서 4열, 8번은 우측 컬럼(row2)에 고정. 모바일은 2열 + 8번은 마지막에 표시 */}
       <div id="reading-board" ref={boardRef} className="relative z-10 pb-24 md:pb-0">
-        <div className="grid grid-cols-3 gap-4 md:grid-cols-3 md:gap-8 items-start max-w-5xl mx-auto">
+        <div className="grid grid-cols-[max-content_max-content_max-content] gap-x-1 gap-y-3 md:grid-cols-3 md:gap-x-2 md:gap-y-5 items-start w-fit mx-auto">
           {data.items
             .slice()
             .sort((a,b)=> a.position-b.position)
@@ -118,15 +104,15 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
               return (
                 <motion.div
                   key={pos}
-                  className={`${base} ${posClass} ${mobileOrder}`}
+                   className={`${base} ${posClass} ${mobileOrder}`}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
                 >
-                  {pos===8 && (
-                    <div className="text-xs text-gray-500 mb-1 hidden md:block text-left md:text-left">솔루션카드</div>
-                  )}
-                  <Card
+                   {pos===8 && (
+                    <div className="text-xs text-gray-500 mb-1 hidden md:block text-left md:text-left">{t("label.solutionCard")}</div>
+                   )}
+                   <Card
                     {...it}
                     revealed={revealedSet.has(pos)}
                     delay={delayFor(pos)}
@@ -143,8 +129,8 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
       </div>
       <Modal open={open} onClose={()=>setOpen(false)}>
         <div className="space-y-2">
-          <div className="text-sm text-gray-500">#{focus.position} {labels[focus.position]}</div>
-          <div className="text-lg font-semibold">{focus.card.name} {focus.is_reversed ? "(Reversed)" : ""}</div>
+          <div className="text-sm text-gray-500">#{focus.position} {posLabel(focus.position)}</div>
+          <div className="text-lg font-semibold">{focus.card.name} {focus.is_reversed ? `(${t('badge.reversed')})` : ""}</div>
           {focus.card.image_url && (
             <div className="relative w-full aspect-[2/3] md:h-[72vh] md:max-h-[72vh] md:w-auto mx-auto">
               <NextImage
@@ -159,22 +145,22 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
             </div>
           )}
           <div className="mt-2 space-y-1">
-            {isFetching && <div className="text-sm text-gray-500">의미 불러오는 중...</div>}
+           {isFetching && <div className="text-sm text-gray-500">{t("loading.meaning")}</div>}
             {meaning ? (
               <>
-                {meaning.keywords.length>0 && (
-                  <div className="text-sm"><span className="font-semibold">키워드</span>: {meaning.keywords.join(", ")}</div>
+           {meaning.keywords.length>0 && (
+              <div className="text-sm"><span className="font-semibold">{t("label.keywords")}</span>: {meaning.keywords.join(", ")}</div>
                 )}
-                <div className="text-sm"><span className="font-semibold">정방향</span>: {meaning.upright}</div>
+                 <div className="text-sm"><span className="font-semibold">{t("orientation.upright")}</span>: {meaning.upright}</div>
                 {meaning.reversed && (
-                  <div className="text-sm"><span className="font-semibold">역방향</span>: {meaning.reversed}</div>
+                  <div className="text-sm"><span className="font-semibold">{t("orientation.reversed")}</span>: {meaning.reversed}</div>
                 )}
               </>
             ) : (
-              <div className="text-sm text-gray-500">의미 데이터가 없습니다.</div>
+              <div className="text-sm text-gray-500">{t("no.meaning")}</div>
             )}
             <details className="mt-3">
-              <summary className="btn-outline cursor-pointer select-none">카드 상세 해설</summary>
+              <summary className="btn-outline cursor-pointer select-none">{t("modal.cardDetail")}</summary>
               <div className="mt-2 space-y-2 text-sm leading-6">
                 <CardDetails id={focus.card.id} readingId={data.id ?? undefined} position={focus.position} />
               </div>
@@ -184,15 +170,15 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
       </Modal>
 
        <section className="mt-6 space-y-3 max-w-5xl mx-auto">
-        <h3 className="text-lg font-semibold">결과</h3>
+        <h3 className="text-lg font-semibold">{t("result.title")}</h3>
         <div className="divider my-2"></div>
-        <ul className="space-y-3">
+        <ul className="retro-result-list">
           {data.items
             .filter(i=> revealedSet.has(i.position))
             .sort((a,b)=> a.position-b.position)
             .map((it)=> (
-              <li key={it.position} className="result-item">
-                <ResultLine position={it.position} label={labels[it.position]} id={it.card.id} name={it.card.name} reversed={it.is_reversed} />
+              <li key={it.position} className="space-card">
+                 <ResultLine position={it.position} label={posLabel(it.position)} id={it.card.id} name={it.card.name} reversed={it.is_reversed} />
               </li>
             ))}
         </ul>
@@ -200,18 +186,15 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           <details className="mt-5 accordion">
             <summary>
               <div className="flex items-center justify-between gap-2">
-                <span>전체 해설 보기</span>
-                <div className="hidden md:flex gap-4">
-                  <a className="badge" href="#질문">질문</a>
-                  <a className="badge" href="#요약">요약</a>
-                  <a className="badge" href="#포지션별 해설">포지션</a>
-                  <a className="badge" href="#섹션 분석">섹션</a>
-                  <a className="badge" href="#조언">조언</a>
-                </div>
+                <span>{t("view.full")}</span>
               </div>
             </summary>
             <div className="accordion-content">
-              <FullInterpret readingId={data.id as string} />
+              <section className="grid grid-cols-1 gap-4">
+                <div>
+                  <FullInterpret readingId={data.id as string} />
+                </div>
+              </section>
             </div>
           </details>
         )}
@@ -220,18 +203,20 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
   );
 }
 
+// overlay 배지는 카드 타일에서는 제거 (요청사항)
+
 function Card(props: { position: number; is_reversed: boolean; card: { name: string; image_url?: string | null }; revealed?: boolean; delay?: number; onClick?: ()=>void }) {
   return (
     <motion.button
       onClick={props.onClick}
-      aria-label={`카드 ${props.position}: ${props.card.name}${props.is_reversed? ' (Reversed)' : ''}`}
-      className="text-left w-36 md:w-44 lg:w-48 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none transition"
+      aria-label={`#${props.position} ${props.card.name}${props.is_reversed? ' (' + 'rev' + ')' : ''}`}
+      className="text-left w-24 md:w-32 lg:w-36 focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:outline-none transition hover:scale-[1.02]"
       data-card="1"
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
       {props.card.image_url && (
-        <div className="w-full relative rounded-xl overflow-hidden ring-1 ring-black/10 dark:ring-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.35)]" style={{ aspectRatio: 2/3 }}>
+        <div className="w-full relative rounded-xl overflow-hidden retro-card" style={{ aspectRatio: 2/3 }}>
           <motion.div
             className="absolute inset-0"
             animate={{ rotateY: props.revealed ? 0 : 180 }}
@@ -264,12 +249,7 @@ function Card(props: { position: number; is_reversed: boolean; card: { name: str
               {/* label removed */}
             </div>
           </motion.div>
-          {/* 상단 배지: 위치/역방향 */}
-          <div className="absolute left-2 top-2">
-            <span className="badge-glass">
-              #{props.position} {props.is_reversed ? '역' : '정'}
-            </span>
-          </div>
+          {/* 상단 배지 제거됨 */}
           {/* 하단 이름 영역 */}
           <div className="card-namebar text-xs font-medium">{props.card.name}</div>
           {/* overlay label removed */}
@@ -280,6 +260,7 @@ function Card(props: { position: number; is_reversed: boolean; card: { name: str
 }
 
 function ResultLine({ position, label, id, name, reversed }: { position: number; label: string; id: number; name: string; reversed: boolean }) {
+  const { t } = useI18n();
   const { meaning, isFetching } = useCardMeaning(id, name);
   return (
     <div>
@@ -288,18 +269,18 @@ function ResultLine({ position, label, id, name, reversed }: { position: number;
           <span className="thumb-wrap">
             <MiniThumb id={id} reversed={reversed} />
           </span>
-          <div className="title">#{position} {label} — {name} {reversed ? '(Reversed)' : ''}</div>
+          <div className="title">#{position} {label} — {name} {reversed ? `(${t('badge.reversed')})` : ''}</div>
         </div>
         <div className="meta">
-          <span className="badge">{reversed ? '역' : '정'}</span>
+          <span className="badge">{reversed ? t('badge.reversed') : t('badge.upright')}</span>
         </div>
       </div>
-      {isFetching && <div className="text-sm text-gray-500">의미 불러오는 중...</div>}
+      {isFetching && <div className="text-sm text-gray-500">{t('loading.meaning')}</div>}
       {meaning && (
         <div className="mt-1 text-sm space-y-1">
-          {meaning.keywords.length>0 && <div><strong>키워드</strong>: {meaning.keywords.join(', ')}</div>}
-          <div><strong>정방향</strong>: {meaning.upright}</div>
-          {meaning.reversed && <div><strong>역방향</strong>: {meaning.reversed}</div>}
+          {meaning.keywords.length>0 && <div><strong>{t('label.keywords')}</strong>: {meaning.keywords.join(', ')}</div>}
+          <div><strong>{t('orientation.upright')}</strong>: {meaning.upright}</div>
+          {meaning.reversed && <div><strong>{t('orientation.reversed')}</strong>: {meaning.reversed}</div>}
         </div>
       )}
     </div>
@@ -378,6 +359,7 @@ function FullInterpret({ readingId }: { readingId: string }) {
   const [text, setText] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const { locale, t } = useI18n();
   const run = useCallback(async ()=>{
     try {
       setLoading(true); setErr(null);
@@ -401,16 +383,16 @@ function FullInterpret({ readingId }: { readingId: string }) {
 
           const lines: string[] = [];
           if (typeof questionField === 'string' && questionField.trim()) {
-            lines.push('## 질문');
+            lines.push(`## ${t('nav.question')}`);
             lines.push(String(questionField));
             lines.push('');
           }
 
-          lines.push('## 요약');
+          lines.push(`## ${t('nav.summary')}`);
           if (summary) lines.push(summary);
           lines.push('');
 
-          lines.push('## 포지션별 해설');
+          lines.push(`## ${t('nav.positions')}`);
           const sorted = [...items].sort((a,b)=>{
             const pa = Number((a as { position?: number }).position ?? 0);
             const pb = Number((b as { position?: number }).position ?? 0);
@@ -426,20 +408,20 @@ function FullInterpret({ readingId }: { readingId: string }) {
               ? ((it as { used_meanings: string[] }).used_meanings.join(', '))
               : '';
             const llmDetail = (it as { llm_detail?: string }).llm_detail || '';
-            const orientation = isRev ? '역' : '정';
+            const orientation = isRev ? t('badge.reversed') : t('badge.upright');
             const upright = Array.isArray((card as { upright_meaning?: string[] | null }).upright_meaning) ? (card as { upright_meaning: string[] }).upright_meaning.join(', ') : '';
             const reversed = Array.isArray((card as { reversed_meaning?: string[] | null }).reversed_meaning) ? (card as { reversed_meaning: string[] }).reversed_meaning.join(', ') : '';
 
             lines.push(`### #${pos} ${role} — ${name} (${orientation})`);
-            if (used) lines.push(`- 키워드: ${used}`);
-            if (upright) lines.push(`- 정방향 의미: ${upright}`);
-            if (reversed) lines.push(`- 역방향 의미: ${reversed}`);
+            if (used) lines.push(`- ${t('label.keywords')}: ${used}`);
+            if (upright) lines.push(`- ${t('orientation.upright')}: ${upright}`);
+            if (reversed) lines.push(`- ${t('orientation.reversed')}: ${reversed}`);
             if (llmDetail) lines.push(`\n${llmDetail}`);
             lines.push('');
           }
 
           if (sectionsField && typeof sectionsField === 'object') {
-            lines.push('## 섹션 분석');
+            lines.push(`## ${t('nav.sections')}`);
             const preferred = ['이슈','과거','현재','근미래','내면','외부','솔루션'];
             const entries = Object.entries(sectionsField as Record<string, { card?: string; orientation?: string; analysis?: string }>);
             entries.sort((a,b)=> preferred.indexOf(a[0]) - preferred.indexOf(b[0]));
@@ -454,7 +436,7 @@ function FullInterpret({ readingId }: { readingId: string }) {
             }
           }
 
-          lines.push('## 조언');
+          lines.push(`## ${t('nav.advices')}`);
           if (advices) lines.push(advices);
           return lines.join('\n').trim();
         }
@@ -481,25 +463,39 @@ function FullInterpret({ readingId }: { readingId: string }) {
 
       // 1) 캐시 조회 우선 (GET /reading/{id}/result)
       try {
-        const cached = await getReadingResult(readingId, { lang: 'auto', use_llm: true });
+        const cached = await getReadingResult(readingId, { lang: locale, use_llm: true });
         const t1 = extractText(cached as unknown as Record<string, unknown>);
         if (t1 && t1.trim().length > 0) { setText(t1); return; }
       } catch { /* 캐시 미존재 → 생성 시도 */ }
 
       // 2) 없으면 생성(POST /reading/{id}/interpret) 후 재조회
-      await postInterpretReading(readingId, { lang: 'auto', use_llm: true });
-      const created = await getReadingResult(readingId, { lang: 'auto', use_llm: true });
+      await postInterpretReading(readingId, { lang: locale || 'auto', style: 'concise', use_llm: false });
+      const created = await getReadingResult(readingId, { lang: locale || 'auto', use_llm: true });
       const t2 = extractText(created as unknown as Record<string, unknown>);
       setText(t2);
   } catch (e: unknown) {
       const m = e instanceof Error ? e.message : '해설 생성 실패';
       setErr(m);
     } finally { setLoading(false); }
-  }, [readingId]);
+  }, [readingId, locale, t]);
 
   useEffect(()=>{ run(); }, [run]);
 
-  if (loading && !text) return <div className="text-sm text-gray-500 p-3">전체 해설 생성 중...</div>;
+  if (loading && !text) {
+    return (
+      <div className="space-panel p-4">
+        <div className="title-retro font-bold mb-2">{t('loading.title')}</div>
+        <div className="space-progress" aria-live="polite">
+          <div className="bar" style={{ width: '66%' }} />
+        </div>
+        <div className="space-steps">
+          <span className="space-chip on">{t('loading.checkCache')}</span>
+          <span className="space-chip on">{t('loading.request')}</span>
+          <span className="space-chip">{t('loading.fetch')}</span>
+        </div>
+      </div>
+    );
+  }
   if (err) return <div className="text-sm text-red-500 p-3">{err}</div>;
   if (!text) return null;
   // 첫 줄이 테스트/시스템 제목처럼 보이는 경우 제거

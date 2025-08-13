@@ -73,17 +73,22 @@ export async function getCard(id: number) {
 export type InterpretResponse = { text?: string } & Record<string, unknown>;
 export async function postInterpretReading(
   readingId: string,
-  body: { lang: string; use_llm: boolean }
+  body: { lang?: string; style?: string; use_llm?: boolean }
 ): Promise<InterpretResponse> {
   const base = API_BASE.replace(/\/$/, "");
   const path = `/reading/${readingId}/interpret`;
   const url = `${base}${path}`;
   // 429 지수 백오프 재시도 (최대 3회)
   const tryFetch = async (attempt: number): Promise<Response> => {
+    const payload = {
+      lang: body.lang ?? 'auto',
+      style: body.style ?? 'concise',
+      use_llm: typeof body.use_llm === 'boolean' ? body.use_llm : false,
+    };
     const r = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+      body: JSON.stringify(payload),
   });
     if (r.status === 429 && attempt < 3) {
       const wait = 500 * Math.pow(2, attempt);

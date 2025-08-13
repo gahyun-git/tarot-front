@@ -28,7 +28,7 @@ export function useCardMeaning(id?: number, name?: string) {
       const params = new URLSearchParams();
       if (id !== undefined) params.set("id", String(id));
       if (name) params.set("name", name);
-      const r = await fetch(`/api/meaning?${params.toString()}`).catch(()=>null);
+      const r = await fetch(`/api/meaning?${params.toString()}`,(undefined as unknown) as RequestInit).catch(()=>null);
       if (!r || !r.ok) return { meaning: null };
       return r.json();
     },
