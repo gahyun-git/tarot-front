@@ -44,13 +44,22 @@ export function useCardMeaning(id?: number, name?: string) {
           }
         } catch {}
       }
-      // 2) 로컬 목 API(없으면 null)
-      const params = new URLSearchParams();
-      if (id !== undefined) params.set("id", String(id));
-      if (name) params.set("name", name);
-      const r = await fetch(`/api/meaning?${params.toString()}`,(undefined as unknown) as RequestInit).catch(()=>null);
-      if (!r || !r.ok) return { meaning: null };
-      return r.json();
+      // 2) 로컬 목 API 대체: /api/tarot/cards/{id}/meanings?lang={locale}
+      if (id !== undefined) {
+        try {
+          const m = await getCardMeanings(id, { lang: locale });
+          return {
+            meaning: {
+              keywords: [],
+              upright: (m.upright || []).join(", "),
+              reversed: m.reversed?.join(", "),
+              uprightList: m.upright || undefined,
+              reversedList: m.reversed || undefined,
+            } as EnhancedMeaning,
+          };
+        } catch { /* ignore */ }
+      }
+      return { meaning: null };
     },
     staleTime: 1000 * 60 * 60,
   });

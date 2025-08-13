@@ -56,11 +56,12 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
   // 내보내기 기능은 필요 시 활성화
 
   const { t } = useI18n();
+  const [copyOpen, setCopyOpen] = useState(false);
   const handleCopyLink = useCallback(async () => {
     const encoded = compressToEncodedURIComponent(JSON.stringify(data));
     const url = `${window.location.origin}${window.location.pathname}#reading=${encoded}`;
     await navigator.clipboard.writeText(url);
-    alert(t("share.copied"));
+    setCopyOpen(true);
   }, [data, t]);
   const posLabel = usePositionLabel();
   const spreadLabels = getSpreadLabels(data.items.length, t);
@@ -70,6 +71,12 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
         <h2 className="text-xl font-semibold title-retro">{t("result.title")}</h2>
         {/* 뒤로 버튼 제거 */}
       </div>
+      <Modal open={copyOpen} onClose={()=>setCopyOpen(false)}>
+        <div className="space-y-2">
+          <div className="text-lg font-semibold">{t('share.copy')}</div>
+          <div className="text-sm opacity-80">{t('share.copied')}</div>
+        </div>
+      </Modal>
       <div className="md:sticky md:top-2 z-20">
             <div className="fixed inset-x-0 bottom-0 md:static z-30">
                 <div className="flex items-center gap-2 md:justify-end">
@@ -274,6 +281,7 @@ function Card(props: { position: number; is_reversed: boolean; label?: string; c
             <span className="text-xs opacity-80 px-2 py-1 rounded-md ring-1 ring-white/10 bg-black/20">
               {props.card.name}
             </span>
+            <div className="absolute inset-0 transition-all" style={{ backdropFilter: props.revealed ? "none" : "blur(10px)", background: props.revealed ? "transparent" : "rgba(0,0,0,0.25)" }} />
           </div>
         )}
         <div className="card-namebar text-xs font-medium">{props.card.name}</div>

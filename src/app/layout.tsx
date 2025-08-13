@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, VT323, Orbit } from "next/font/google";
 // import localFont from "next/font/local";
 import "./globals.css";
 import TopBar from "@/components/TopBar";
+import Footer from "@/components/Footer";
 import Providers from "./providers";
 
 const geistSans = Geist({
@@ -42,6 +43,10 @@ export const metadata: Metadata = {
   description: "AI 기반 타로 리딩: 질문 입력, 카드 배치, 결과 해석까지 한 번에.",
   keywords: ["tarot", "타로", "reading", "AI", "interpretation", "tarot spread"],
   alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
+  other: {
+    'google-adsense-account': 'ca-pub-8015585586602031',
+  },
   openGraph: {
     type: "website",
     title: "Tarot Reading",
@@ -60,9 +65,6 @@ export const metadata: Metadata = {
     images: ["/window.svg"],
   },
   icons: { icon: "/favicon.ico" },
-  other: {
-    'google-adsense-account': 'ca-pub-8015585586602031',
-  },
 };
 
 export default function RootLayout({
@@ -77,6 +79,7 @@ export default function RootLayout({
         <Providers>
           <TopBar />
           {children}
+          <Footer />
           <Script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8015585586602031"

@@ -6,6 +6,7 @@ import ReadingForm from "@/components/ReadingForm";
 import ReadingResultSkeleton from "@/components/ReadingResultSkeleton";
 import History from "@/components/History";
 import SpreadPicker from "@/components/SpreadPicker";
+import InlineGuides from "@/components/InlineGuides";
 import type { ReadingResponse } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { addToHistory } from "@/lib/history";
@@ -46,33 +47,37 @@ export default function Home() {
           }
         }) }}
       />
+      
       <section className="space-hero p-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center relative">
         <div className="space-y-4">
           <div className="text-4xl md:text-5xl font-extrabold leading-tight">
             <div suppressHydrationWarning>{mounted ? t("hero.heading1") : ""}</div>
             <div className="text-yellow-500" suppressHydrationWarning>{mounted ? t("hero.heading2") : ""}</div>
           </div>
-          <div className="flex gap-3">
-            <a className="space-btn" href="#form" suppressHydrationWarning>{mounted ? t("form.title") : ""}</a>
-            <Link className="space-btn-ghost" href={`/content?lang=${typeof window !== 'undefined' ? '' : ''}`}>{mounted ? t('btn.guide') : ''}</Link>
-          </div>
         </div>
         <div className="gold-stars" aria-hidden />
       </section>
+
+      <SpreadPicker />
 
       <section id="form" className="space-panel p-6">
         <h2 className="text-xl font-extrabold mb-3" suppressHydrationWarning>{mounted ? t("form.title") : ""}</h2>
         <ReadingForm onSuccess={(d)=>{ setResult(d); try { const id = addToHistory(d); window.location.href = `/reading/${id}`; } catch { window.location.href = `/reading/local`; } }} onLoadingChange={setLoading} />
       </section>
-
-      <SpreadPicker />
-
       {loading && <ReadingResultSkeleton />}
+
+      {/* 방법 선택 → 인라인 가이드 */}
+      
+      
       {!loading && (
         <section className="space-panel p-6">
           <History onSelect={(d)=>{ const id = addToHistory(d); window.location.href = `/reading/${id}`; }} />
         </section>
       )}
+
+      <InlineGuides />
+
+     
     </main>
   );
 }

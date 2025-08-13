@@ -15,7 +15,7 @@ export async function GET() {
   return Response.json({
     spreads: [
       { id: 'daily', name: 'Daily One Card', count: 1 },
-      { id: 'eight', name: 'Eight Positions', count: 8 }
+      { id: 'eight', name: '고민 타로점', count: 8 }
     ]
   });
 }

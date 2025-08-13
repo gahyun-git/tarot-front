@@ -1,9 +1,7 @@
-# 3-Card Spread — Past / Present / Future
+# Daily One Card
 
-- Focus: Quick overview of the situation
-- Positions:
-  1. Past — Influences from the past
-  2. Present — Current state
-  3. Future — Likely outcome
-
-Use this spread for daily guidance and short questions.
+- Focus: Quick insight for today
+- Draw one card and reflect on its message.
+- Tips:
+  - Keep the question simple (e.g., "What should I focus on today?")
+  - Note any repeating symbols or feelings.

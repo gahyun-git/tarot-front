@@ -11,9 +11,11 @@ export default function TopBar() {
   return (
     <header className="space-header">
       <div className="inner max-w-5xl mx-auto px-4 flex items-center justify-between gap-2">
-        <Link href="/" className="space-brand">
-          <span>🔮 Tarot</span>
-        </Link>
+        <nav className="flex items-center gap-3">
+          <Link href="/" className="space-brand">
+            <span>🔮 Tarot</span>
+          </Link>
+        </nav>
         <div className="flex items-center gap-2 sm:gap-3">
           <label className="text-xs md:text-sm" suppressHydrationWarning>{mounted ? t("form.lang") : ""}</label>
           <select

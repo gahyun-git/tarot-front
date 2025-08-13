@@ -17,7 +17,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return Response.json({ error: { code: 'upstream_unreachable' } }, { status: 502 });
     }
   }
-  return Response.json({ id: Number(p.id), lang, upright: ["sample"], reversed: ["sample"] });
 }
 
 

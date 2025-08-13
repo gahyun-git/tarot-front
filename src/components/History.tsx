@@ -29,7 +29,9 @@ export default function History({ onSelect }: { onSelect?: (data: ReadingRespons
           <li key={item.id} className="flex items-center justify-between space-card">
             <button className="flex-1 text-left p-3 min-w-0" onClick={()=> { try { window.location.href = `/reading/${item.id}`; } catch { onSelect?.(item.data); } }}>
               <div className="text-sm opacity-70 whitespace-nowrap overflow-hidden text-ellipsis">{new Date(item.createdAt).toLocaleString(undefined, { hour12: false })}</div>
-              <div className="font-medium truncate max-w-full">{item.data.question}</div>
+              <div className="font-medium truncate max-w-full">
+                {item.data.count === 1 ? t('spread.daily') : t('spread.eight')}
+              </div>
             </button>
             <button className="text-sm underline px-3 shrink-0" onClick={()=>handleRemove(item.id)}>{t("history.delete")}</button>
           </li>
