@@ -117,6 +117,20 @@ export async function GET(
       { status: 405, headers: { Allow: "POST" } }
     );
   }
+  // 로컬 목 결과 조회: /reading/local-daily/result → 간단 텍스트 반환
+  if (targetPath === "/reading/local-daily/result") {
+    return NextResponse.json({
+      text: `오늘의 카드\n\n# The Sun\n- 성공, 생기, 낙관을 의미합니다.\n- 작은 목표부터 시작해 보세요.\n\n행운이 함께합니다.`,
+      items: [
+        {
+          position: 1,
+          llm_detail: "따뜻한 태양처럼 주도적으로 하루를 열어보세요.",
+          used_meanings: ["성공", "생기", "낙관"],
+          card: { upright_meaning: ["성공", "생기", "낙관"], reversed_meaning: ["과잉 자신감", "지연", "불확실"] },
+        },
+      ],
+    });
+  }
   // 로컬 목 ID 처리: /reading/local-daily → 목 ReadingResponse 반환
   if (targetPath === "/reading/local-daily") {
     const mock = {
