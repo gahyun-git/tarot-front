@@ -237,16 +237,15 @@ function Card(props: { position: number; is_reversed: boolean; label?: string; c
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
     >
-      {props.card.image_url && (
-        <div className="w-full relative rounded-xl overflow-hidden retro-card" style={{ aspectRatio: 2/3 }}>
-          {props.label && (<span className="space-chip absolute top-1 left-1 z-10">{props.label}</span>)}
+      <div className="w-full relative rounded-xl overflow-hidden retro-card" style={{ aspectRatio: 2/3 }}>
+        {props.label && (<span className="space-chip absolute top-1 left-1 z-10">{props.label}</span>)}
+        {props.card.image_url ? (
           <motion.div
             className="absolute inset-0"
             animate={{ rotateY: props.revealed ? 0 : 180 }}
             transition={{ duration: 0.6, ease: "easeInOut" }}
             style={{ transformStyle: "preserve-3d", perspective: 1000 }}
           >
-            {/* 앞면: 선명한 이미지 */}
             <div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
               <NextImage
                 loader={passthroughLoader}
@@ -258,7 +257,6 @@ function Card(props: { position: number; is_reversed: boolean; label?: string; c
                 style={{ filter: "none" }}
               />
             </div>
-            {/* 뒷면: 동일 이미지 + 블러 */}
             <div className="absolute inset-0" style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}>
               <NextImage
                 loader={passthroughLoader}
@@ -269,15 +267,17 @@ function Card(props: { position: number; is_reversed: boolean; label?: string; c
                 sizes="(max-width: 768px) 100vw, 33vw"
                 style={{ filter: "blur(12px) saturate(0.85) brightness(0.9)" }}
               />
-              {/* label removed */}
             </div>
           </motion.div>
-          {/* 상단 배지 제거됨 */}
-          {/* 하단 이름 영역 */}
-          <div className="card-namebar text-xs font-medium">{props.card.name}</div>
-          {/* overlay label removed */}
-        </div>
-      )}
+        ) : (
+          <div className="absolute inset-0 grid place-items-center" style={{ background: "linear-gradient(135deg, rgba(102,51,153,0.35), rgba(255,215,0,0.15))" }}>
+            <span className="text-xs opacity-80 px-2 py-1 rounded-md ring-1 ring-white/10 bg-black/20">
+              {props.card.name}
+            </span>
+          </div>
+        )}
+        <div className="card-namebar text-xs font-medium">{props.card.name}</div>
+      </div>
     </motion.button>
   );
 }
