@@ -1,26 +1,33 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { getMeaning, type CardMeaning } from "@/lib/meanings";
-import { getCard } from "@/lib/api";
+import { getCard, getCardMeanings } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 
 export function useCardMeaning(id?: number, name?: string) {
+  const { locale } = useI18n();
   const local = getMeaning(id, name);
   const q = useQuery<{ meaning: CardMeaning | null }>({
     queryKey: ["card-meaning", id ?? name],
     queryFn: async () => {
       if (!id && !name) return { meaning: null };
-      // 1) 백엔드 카드 상세의 의미 필드 사용
+      // 1) 백엔드 카드 의미 API 우선 사용
       if (id !== undefined) {
         try {
-          const c = await getCard(id);
-          if ((c.upright_meaning && c.upright_meaning.length) || (c.reversed_meaning && c.reversed_meaning.length)) {
-            return {
-              meaning: {
-                keywords: [],
-                upright: (c.upright_meaning || []).join(", "),
-                reversed: c.reversed_meaning ? c.reversed_meaning.join(", ") : undefined,
-              },
-            };
+          const m = await getCardMeanings(id, { lang: locale });
+          if ((m.upright && m.upright.length) || (m.reversed && m.reversed.length)) {
+            return { meaning: { keywords: [], upright: (m.upright || []).join(", "), reversed: m.reversed?.join(", ") } };
+          } else {
+            const c = await getCard(id);
+            if ((c.upright_meaning && c.upright_meaning.length) || (c.reversed_meaning && c.reversed_meaning.length)) {
+              return {
+                meaning: {
+                  keywords: [],
+                  upright: (c.upright_meaning || []).join(", "),
+                  reversed: c.reversed_meaning ? c.reversed_meaning.join(", ") : undefined,
+                },
+              };
+            }
           }
         } catch {}
       }
