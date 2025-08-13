@@ -34,9 +34,32 @@ const orbit = Orbit({
 // });
 
 export const metadata: Metadata = {
-  title: "Tarot Front",
-  description: "Tarot reading UI",
-  // Add Google AdSense account meta tag
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://go4it.site"),
+  title: {
+    default: "Tarot Reading | go4it.site",
+    template: "%s | go4it.site",
+  },
+  description: "AI 기반 타로 리딩: 질문 입력, 카드 배치, 결과 해석까지 한 번에.",
+  keywords: ["tarot", "타로", "reading", "AI", "interpretation", "tarot spread"],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    title: "Tarot Reading",
+    description: "AI 기반 타로 리딩",
+    url: "/",
+    siteName: "go4it.site",
+    images: [
+      { url: "/window.svg", width: 1200, height: 630, alt: "Tarot" },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@",
+    title: "Tarot Reading",
+    description: "AI 기반 타로 리딩",
+    images: ["/window.svg"],
+  },
+  icons: { icon: "/favicon.ico" },
   other: {
     'google-adsense-account': 'ca-pub-8015585586602031',
   },

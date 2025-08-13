@@ -30,6 +30,20 @@ export default function Home() {
   }, []);
   return (
     <main className="p-6 max-w-5xl mx-auto space-y-8 pb-40">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: 'go4it.site',
+          url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://go4it.site'),
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: (process.env.NEXT_PUBLIC_SITE_URL || 'https://go4it.site') + '/?q={search_term_string}',
+            'query-input': 'required name=search_term_string'
+          }
+        }) }}
+      />
       <section className="space-hero p-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-center relative">
         <div className="space-y-4">
           <div className="text-4xl md:text-5xl font-extrabold leading-tight">
