@@ -42,7 +42,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
     return Math.max(0, idx) * 0.06;
   };
 
-  const { meaning, isFetching } = useCardMeaning(focus.card.id, focus.card.name);
+  const { isFetching } = useCardMeaning(focus.card.id, focus.card.name);
 
   // 새 결과가 들어오면 공개상태/포커스를 초기화하여 항상 뒷면부터 보이도록
   useEffect(() => {
@@ -58,11 +58,17 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
   const { t } = useI18n();
   const [copyOpen, setCopyOpen] = useState(false);
   const handleCopyLink = useCallback(async () => {
-    const encoded = compressToEncodedURIComponent(JSON.stringify(data));
-    const url = `${window.location.origin}${window.location.pathname}#reading=${encoded}`;
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    const onReadingPage = pathname.startsWith("/reading/");
+    const url = onReadingPage
+      ? `${origin}${pathname}`
+      : (data.id
+        ? `${origin}/reading/${data.id}`
+        : `${origin}${pathname}#reading=${compressToEncodedURIComponent(JSON.stringify(data))}`);
     await navigator.clipboard.writeText(url);
     setCopyOpen(true);
-  }, [data, t]);
+  }, [data]);
   const posLabel = usePositionLabel();
   const isDaily = data.count === 1;
   const spreadLabels = getSpreadLabels(data.items.length, t);
@@ -204,27 +210,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
   );
 }
 
-function MeaningTabs({ t, summary, keywords, upright, reversed }: { t: (k:string)=>string; summary?: string; keywords: string[]; upright: string; reversed?: string }) {
-  const [tab, setTab] = useState<'sum'|'kw'|'up'|'rev'>('kw');
-  return (
-    <div className="space-panel p-3">
-      <div role="tablist" aria-label="meaning" className="flex gap-2 mb-2">
-        <button role="tab" aria-selected={tab==='sum'} className={`space-chip ${tab==='sum'?'on':''}`} onClick={()=>setTab('sum')}>{t('tab.summary')}</button>
-        <button role="tab" aria-selected={tab==='kw'} className={`space-chip ${tab==='kw'?'on':''}`} onClick={()=>setTab('kw')}>{t('tab.keywords')}</button>
-        <button role="tab" aria-selected={tab==='up'} className={`space-chip ${tab==='up'?'on':''}`} onClick={()=>setTab('up')}>{t('tab.upright')}</button>
-        {reversed && <button role="tab" aria-selected={tab==='rev'} className={`space-chip ${tab==='rev'?'on':''}`} onClick={()=>setTab('rev')}>{t('tab.reversed')}</button>}
-      </div>
-      <div role="tabpanel">
-        {tab==='sum' && (<div className="text-sm whitespace-pre-wrap">{summary || upright}</div>)}
-        {tab==='kw' && (
-          <div className="flex flex-wrap gap-2">{keywords && keywords.length ? keywords.map((k,i)=>(<span key={i} className="space-chip" title={k}>{k}</span>)) : <span className="text-sm opacity-80">-</span>}</div>
-        )}
-        {tab==='up' && (<div className="text-sm whitespace-pre-wrap">{upright}</div>)}
-        {tab==='rev' && reversed && (<div className="text-sm whitespace-pre-wrap">{reversed}</div>)}
-      </div>
-    </div>
-  );
-}
+// NOTE: MeaningTabs 컴포넌트는 현재 미사용이라 제거
 
 // overlay 배지는 카드 타일에서는 제거 (요청사항)
 
