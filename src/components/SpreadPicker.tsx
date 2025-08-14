@@ -42,7 +42,7 @@ export default function SpreadPicker() {
             <div className="flex items-center gap-2">
               
               {s.id === 'daily' ? (
-                <button className="space-btn" onClick={runDaily} disabled={loading}>{t('daily.button')}</button>
+                <button className="space-btn" onClick={runDaily} disabled={loading}>{t('btn.use')}</button>
               ) : (
                 <button className="space-btn" onClick={()=>goForm(s.id)}>{t('btn.use')}</button>
               )}

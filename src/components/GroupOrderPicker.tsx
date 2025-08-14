@@ -10,6 +10,8 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
   const base: AB[] = useMemo(()=> ["B","C","A"], []); // 현재, 미래, 과거 표시 순서
   const [placed, setPlaced] = useState<AB[]>([]);
   const dragStartRef = useRef<{x:number;y:number}|null>(null);
+  // 터치 드래그 지원 (모바일 길게 눌러야 하는 문제 개선)
+  const dragKeyRef = useRef<AB|null>(null);
   const imgFor: Record<AB, string> = { A: "/card-a.png", B: "/card-b.png", C: "/card-c.png" };
   const [pulseKey, setPulseKey] = useState(0);
   const [pulsing, setPulsing] = useState(false);
@@ -22,7 +24,38 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
       <div className="select-none space-y-3">
         <div className="flex items-center justify-center gap-4 flex-wrap">
           {base.filter(k=> !placed.includes(k)).map((k)=> (
-            <div key={`m-src-${k}`} className="stack-src" draggable onDragStart={(e)=>{ e.dataTransfer.setData('text/x-card', k); e.dataTransfer.effectAllowed='move'; dragStartRef.current = { x: e.clientX, y: e.clientY }; }} title={t(`group.${k}.label`)}>
+            <div
+              key={`m-src-${k}`}
+              className="stack-src"
+              draggable
+              onDragStart={(e)=>{ e.dataTransfer.setData('text/x-card', k); e.dataTransfer.effectAllowed='move'; dragStartRef.current = { x: e.clientX, y: e.clientY }; }}
+              onTouchStart={()=>{ dragKeyRef.current = k; }}
+              onTouchMove={(e)=>{
+                const t = e.touches[0];
+                const el = document.elementFromPoint(t.clientX, t.clientY) as HTMLElement | null;
+                if (el && el.closest('.stack-target')) {
+                  // highlight target when hovering
+                  (el.closest('.stack-target') as HTMLElement).classList.add('space-target-pulse');
+                }
+              }}
+              onTouchEnd={(e)=>{
+                const k2 = dragKeyRef.current; dragKeyRef.current = null;
+                const t = e.changedTouches[0];
+                const el = document.elementFromPoint(t.clientX, t.clientY) as HTMLElement | null;
+                if (k2 && el && el.closest('.stack-target')) {
+                  const next = [...placed];
+                  const existed = next.indexOf(k2);
+                  if (existed>=0) next.splice(existed,1);
+                  next.push(k2);
+                  setPlaced(next);
+                  const newOrder: AB[] = [...next, ...base.filter(b=> !next.includes(b))].slice(0,3) as AB[];
+                  onChange(newOrder as Order);
+                  setPulsing(true); setPulseKey(v=>v+1); setTimeout(()=> setPulsing(false), 420);
+                }
+                document.querySelector('.stack-target')?.classList.remove('space-target-pulse');
+              }}
+              title={t(`group.${k}.label`)}
+            >
               <div className="stack-card-img" style={{ backgroundImage: `url(${imgFor[k]})` }} />
               <div className="stack-card-badge">{t(`group.${k}.label`)}</div>
             </div>

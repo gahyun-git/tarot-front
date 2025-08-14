@@ -108,6 +108,10 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
         {(loading || mutation.isPending) && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
         <span suppressHydrationWarning>{mounted ? (loading || mutation.isPending ? t("form.loading") : t("form.draw8")) : ""}</span>
       </button>
+      <button className="space-btn-ghost disabled:opacity-50 inline-flex items-center justify-center gap-2" type="button" onClick={daily} disabled={dailyLoading}>
+        {dailyLoading && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
+        <span suppressHydrationWarning>{mounted ? t('daily.button') : ''}</span>
+      </button>
       </div>
       {dailyLoading && (
         <div className="space-progress mt-1" aria-live="polite">
