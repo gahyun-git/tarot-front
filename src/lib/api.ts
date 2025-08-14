@@ -21,8 +21,9 @@ export type ReadingResponse = {
   id?: string | null;
 };
 
-// 브라우저에서는 내부 프록시 경로만 사용하여 비밀값 노출 방지
+// 기본 프록시 경로. 프로덕션에서 static export인 경우 NEXT_PUBLIC_TAROT_API_BASE로 직접 호출
 const API_BASE = "/api/tarot";
+const PUBLIC_API_BASE = (process.env.NEXT_PUBLIC_TAROT_API_BASE || "").replace(/\/$/, "");
 
 type ErrorBody = { error?: { code?: string; message?: string } };
 function isErrorBody(v: unknown): v is ErrorBody {
@@ -62,7 +63,7 @@ export async function postReading(params: {
 }
 
 export async function getCard(id: number) {
-  const endpoint = `${API_BASE.replace(/\/$/, "")}/cards/${id}`;
+  const endpoint = `${(PUBLIC_API_BASE || API_BASE).replace(/\/$/, "")}/cards/${id}`;
   const r = await fetch(endpoint, { method: "GET" });
   if (!r.ok) throw new Error("카드 정보를 불러오지 못했습니다.");
   return r.json() as Promise<{
@@ -112,7 +113,7 @@ export async function getReadingResult(
   if (params.lang) search.set("lang", params.lang);
   if (typeof params.use_llm === "boolean") search.set("use_llm", String(params.use_llm));
   const q = search.toString();
-  const base = API_BASE.replace(/\/$/, "");
+  const base = (PUBLIC_API_BASE || API_BASE).replace(/\/$/, "");
   const path = `/reading/${readingId}/result`;
   const url = `${base}${path}${q ? `?${q}` : ""}`;
   const tryFetch = async (attempt: number): Promise<Response> => {
@@ -132,7 +133,7 @@ export async function getReadingResult(
 
 // 개별 리딩 원본 조회(카드 목록 등)
 export async function getReadingById(readingId: string): Promise<ReadingResponse> {
-  const base = API_BASE.replace(/\/$/, "");
+  const base = (PUBLIC_API_BASE || API_BASE).replace(/\/$/, "");
   const path = `/reading/${readingId}`;
   const url = `${base}${path}`;
   const r = await fetch(url);
@@ -147,7 +148,7 @@ export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}
   if (typeof params.use_llm === "boolean") search.set("use_llm", String(params.use_llm));
   const q = search.toString();
   // daily는 내부 프록시(/api/reading/daily)로 직접 호출해 호환성 확보
-  const base = "/api/reading";
+  const base = PUBLIC_API_BASE || "/api/reading";
   const path = `/daily`;
   const url = `${base}${path}${q ? `?${q}` : ""}`;
   const r = await fetch(url);
@@ -157,7 +158,7 @@ export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}
 }
 
 export async function getCardMeanings(cardId: number, params: { lang?: string } = {}) {
-  const base = API_BASE.replace(/\/$/, "");
+  const base = (PUBLIC_API_BASE || API_BASE).replace(/\/$/, "");
   const path = `/cards/${cardId}/meanings?lang=${params.lang || 'auto'}`;
   const url = `${base}${path}`;
   const r = await fetch(url);
@@ -167,7 +168,7 @@ export async function getCardMeanings(cardId: number, params: { lang?: string } 
 }
 
 export async function getSpreads() {
-  const base = API_BASE.replace(/\/$/, "");
+  const base = (PUBLIC_API_BASE || API_BASE).replace(/\/$/, "");
   const path = `/reading/spreads`;
   const url = `${base}${path}`;
   const r = await fetch(url);
