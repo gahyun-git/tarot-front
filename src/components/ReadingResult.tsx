@@ -499,17 +499,20 @@ function FullInterpret({ readingId }: { readingId: string }) {
 
   if (loading && !text) {
     return (
-      <div className="space-panel p-4">
-        <div className="title-retro font-bold mb-2">{t('loading.title')}</div>
-        <div className="space-progress" aria-live="polite">
-          <div className="bar" style={{ width: '66%' }} />
+      <Modal open={true} onClose={()=>{}}>
+        <div className="flex flex-col items-center justify-center gap-4 p-2">
+          <div className="space-orb" aria-hidden />
+          <div className="text-lg font-semibold">{t('loading.title')}</div>
+          <div className="space-progress w-full max-w-md" aria-live="polite">
+            <div className="bar" style={{ width: '66%' }} />
+          </div>
+          <div className="space-steps">
+            <span className="space-chip on">{t('loading.checkCache')}</span>
+            <span className="space-chip on">{t('loading.request')}</span>
+            <span className="space-chip">{t('loading.fetch')}</span>
+          </div>
         </div>
-        <div className="space-steps">
-          <span className="space-chip on">{t('loading.checkCache')}</span>
-          <span className="space-chip on">{t('loading.request')}</span>
-          <span className="space-chip">{t('loading.fetch')}</span>
-        </div>
-      </div>
+      </Modal>
     );
   }
   if (err) return <div className="text-sm text-red-500 p-3">{err}</div>;

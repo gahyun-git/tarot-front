@@ -87,8 +87,8 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
   return (
     <div className="grid gap-4">
       <label className="grid gap-1">
-        <input className="space-input" value={question} onChange={(e)=>setQuestion(e.target.value)} placeholder={mounted ? t("form.placeholder.question") : ""} aria-invalid={question.trim().length===0} />
-        {question.trim().length===0 && <span className="text-sm text-red-600" suppressHydrationWarning>{mounted ? t("form.validation.questionRequired") : ""}</span>}
+        <input className="space-input" required value={question} onChange={(e)=>setQuestion(e.target.value)} placeholder={t("form.placeholder.question")} aria-invalid={question.trim().length===0} onKeyDown={(e)=>{ if (e.key==='Enter' && question.trim().length>0 && !loading && !mutation.isPending) submit(); }} />
+        {question.trim().length===0 && <span className="text-sm text-amber-400" suppressHydrationWarning>{mounted ? t("form.validation.questionRequired") : ""}</span>}
       </label>
       <div className="grid gap-1">
         <span suppressHydrationWarning>{mounted ? t("form.groupOrder") : ""}</span>
@@ -103,16 +103,14 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
         <input type="checkbox" checked={allowReversed} onChange={(e)=>setAllowReversed(e.target.checked)} /> <span suppressHydrationWarning>{mounted ? t("form.reversed") : ""}</span>
       </label>
       <span id="help-reversed" className="text-xs text-gray-400 -mt-2" suppressHydrationWarning>{mounted ? t("form.help.reversed") : ""}</span>
-      <div className="flex gap-3 items-center">
-      <button className="space-btn w-40 disabled:opacity-50 inline-flex items-center justify-center gap-2" onClick={submit} disabled={loading || mutation.isPending || question.trim().length === 0}>
-        {(loading || mutation.isPending) && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
-        <span suppressHydrationWarning>{mounted ? (loading || mutation.isPending ? t("form.loading") : t("form.draw8")) : ""}</span>
-      </button>
-      <button className="space-btn-ghost disabled:opacity-50 inline-flex items-center justify-center gap-2" type="button" onClick={daily} disabled={dailyLoading}>
-        {dailyLoading && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
-        <span suppressHydrationWarning>{mounted ? t('daily.button') : ''}</span>
-      </button>
-      </div>
+      {question.trim().length > 0 && (
+        <div className="flex gap-3 items-center justify-center">
+          <button className="space-btn w-40 disabled:opacity-50 inline-flex items-center justify-center gap-2" onClick={submit} disabled={loading || mutation.isPending}>
+            {(loading || mutation.isPending) && (<span className="inline-block h-4 w-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />)}
+            <span suppressHydrationWarning>{mounted ? ((loading || mutation.isPending) ? t("form.loading") : t("form.draw8")) : ""}</span>
+          </button>
+        </div>
+      )}
       {dailyLoading && (
         <div className="space-progress mt-1" aria-live="polite">
           <div className="bar" style={{ width: '66%' }} />

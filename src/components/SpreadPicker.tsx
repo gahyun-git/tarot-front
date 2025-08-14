@@ -36,8 +36,8 @@ export default function SpreadPicker() {
       <ul className="grid gap-3 sm:grid-cols-2">
         {items.map((s) => (
           <li key={s.id} className="space-card flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span>{s.id === 'daily' ? t('spread.daily') : t('spread.eight')}</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="truncate">{s.id === 'daily' ? t('spread.daily') : t('spread.eight')}</span>
             </div>
             <div className="flex items-center gap-2">
               

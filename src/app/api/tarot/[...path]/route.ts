@@ -118,11 +118,13 @@ export async function GET(
     );
   }
   // 로컬 목 결과 조회: /reading/local-daily/result → 간단 텍스트 반환
-  if (targetPath === "/reading/local-daily/result") {
+  // local-daily with timestamp result e.g., /reading/local-daily-1755145094416/result
+  if (/^\/reading\/local-daily(?:-\d+)?\/result$/.test(targetPath)) {
     return NextResponse.json({ text: "오늘의 카드", items: [] });
   }
   // 로컬 목 ID 처리: /reading/local-daily → 목 ReadingResponse 반환
-  if (targetPath === "/reading/local-daily") {
+  // local-daily with optional timestamp e.g., /reading/local-daily or /reading/local-daily-1755...
+  if (/^\/reading\/local-daily(?:-\d+)?$/.test(targetPath)) {
     const pool = [
       { id: 0, name: "The Fool" }, { id: 1, name: "The Magician" }, { id: 2, name: "The High Priestess" },
       { id: 3, name: "The Empress" }, { id: 4, name: "The Emperor" }, { id: 5, name: "The Hierophant" },
