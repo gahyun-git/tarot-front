@@ -131,9 +131,9 @@ export async function getReadingResult(
 }
 
 // 개별 리딩 원본 조회(카드 목록 등)
-export async function getReading(): Promise<ReadingResponse> {
+export async function getReadingById(readingId: string): Promise<ReadingResponse> {
   const base = API_BASE.replace(/\/$/, "");
-  const path = `/reading/daily?lang=auto&use_llm=false`;
+  const path = `/reading/${readingId}`;
   const url = `${base}${path}`;
   const r = await fetch(url);
   const data = await r.json().catch(() => ({}));

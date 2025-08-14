@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import ReadingResult from "@/components/ReadingResult";
 import type { ReadingResponse } from "@/lib/api";
 import { addToHistory, getHistoryById } from "@/lib/history";
-import { getReading } from "@/lib/api";
+import { getReadingById } from "@/lib/api";
 
 export default function ReadingDetail() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function ReadingDetail() {
       if (item) { setData(item.data); return; }
       // 히스토리에 없으면 백엔드에서 조회 시도 → 즉시 화면에 표시하고, 이어서 히스토리에 저장 후 로컬 ID로 교체
       try {
-        const r = await getReading(id);
+        const r = await getReadingById(id);
         setData(r); // 먼저 화면 표시
         const newLocalId = addToHistory(r);
         if (newLocalId && newLocalId !== id) router.replace(`/reading/${newLocalId}`);
