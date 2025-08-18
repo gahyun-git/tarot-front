@@ -37,29 +37,7 @@ async function forwardGet(req: NextRequest, targetPath: string) {
   return forwardWithHmac(req, targetPath);
 }
 
-async function forwardWithApiKey(req: NextRequest, targetPath: string) {
-  if (!RESOLVED_BASE) {
-    return NextResponse.json({ error: { message: "TAROT_API_BASE_URL not set (fallbacks UPSTREAM_API_BASE_URL / NEXT_PUBLIC_API_BASE_URL also empty)" } }, { status: 500 });
-  }
-  const url = `${RESOLVED_BASE}${targetPath}${req.nextUrl.search}`;
-  const bodyText = ["GET", "HEAD"].includes(req.method) ? undefined : await req.text();
-  try {
-    const r = await fetch(url, {
-      method: req.method,
-      headers: {
-        ...(bodyText ? { "content-type": "application/json" } : {}),
-        "x-api-key": API_KEY,
-      },
-      body: bodyText,
-    });
-    return new NextResponse(r.body, { status: r.status, headers: r.headers });
-  } catch (err) {
-    return NextResponse.json(
-      { error: { message: "Upstream fetch failed", detail: (err as Error)?.message } },
-      { status: 502 }
-    );
-  }
-}
+// API Key 방식은 미사용 (HMAC만 사용)
 
 async function forwardWithHmac(req: NextRequest, targetPath: string) {
   const bodyText = ["GET", "HEAD"].includes(req.method) ? "" : await req.text();
