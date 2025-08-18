@@ -1,4 +1,6 @@
 export const API = process.env.NEXT_PUBLIC_API_URL ?? "https://api.go4it.site";
+// 클라이언트에서 비밀키 노출 없이 호출하기 위해 Next.js API 프록시 사용
+const PROXY = "/api/tarot";
 const PUBLIC_API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 function authHeaders(): Record<string, string> {
@@ -17,7 +19,7 @@ export async function createReading(payload: {
 	seed?: number | null;
 	allow_reversed: boolean;
 }) {
-	const res = await fetch(`${API}/reading/`, {
+	const res = await fetch(`${PROXY}/reading/`, {
 		method: "POST",
 		headers: authHeaders(),
 		body: JSON.stringify(payload),
@@ -27,7 +29,7 @@ export async function createReading(payload: {
 }
 
 export async function createShare(readingId: string) {
-	const res = await fetch(`${API}/reading/${readingId}/share`, { method: "POST", headers: authHeaders() });
+	const res = await fetch(`${PROXY}/reading/${readingId}/share`, { method: "POST", headers: authHeaders() });
 	if (!res.ok) throw new Error(`share failed: ${res.status}`);
 	return res.json() as Promise<{ slug: string }>; 
 }
