@@ -1,3 +1,4 @@
+"use client";
 import type { ReadingResponse } from "@/lib/api";
 import Modal from "@/components/Modal";
 import KeyboardNav from "@/components/KeyboardNav";

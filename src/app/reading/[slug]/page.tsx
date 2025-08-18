@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
-type Card = { id: number; name: string; arcana: string; image_url?: string | null };
+import ReadingResult from "@/components/ReadingResult";
+import type { ReadingResponse } from "@/lib/api";
+type Card = { id: number; name: string; arcana: string; image_url?: string | null; upright_meaning?: string[] | null; reversed_meaning?: string[] | null };
 type CardWithContext = { position: number; role: string; is_reversed: boolean; used_meanings?: string[] | null; card: Card; llm_detail?: string | null };
 type FullReadingResult = {
   id: string; question: string; lang: string;
@@ -32,30 +34,28 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const { slug } = await params;
   const data = await getData(slug);
   if (!data) return notFound();
+  const mapped: ReadingResponse = {
+    id: data.id,
+    question: data.question,
+    order: ["A","B","C"],
+    count: data.items?.length || 0,
+    items: (data.items || []).map((it)=>({
+      position: it.position,
+      is_reversed: it.is_reversed,
+      card: {
+        id: it.card?.id as number,
+        name: it.card?.name as string,
+        arcana: it.card?.arcana as string,
+        suit: null,
+        image_url: it.card?.image_url || null,
+        upright_meaning: it.card?.upright_meaning ?? null,
+        reversed_meaning: it.card?.reversed_meaning ?? null,
+      },
+    }))
+  };
   return (
-    <main style={{ padding: 24, maxWidth: 860, margin: "0 auto" }}>
-      <h1>Tarot Reading</h1>
-      <p style={{ opacity: .85 }}>Q: {data.question}</p>
-      <section>
-        <h2>Summary</h2>
-        <p style={{ whiteSpace: "pre-wrap", lineHeight: 1.7 }}>{data.summary}</p>
-      </section>
-      <section>
-        <h2>Advices</h2>
-        <ol>
-          {data.advices.map((a, i) => (<li key={i} style={{ marginBottom: 12, lineHeight: 1.7 }}>{a}</li>))}
-        </ol>
-      </section>
-      <section>
-        <h2>Cards</h2>
-        <ul>
-          {data.items.map(it => (
-            <li key={it.position} style={{ margin: "8px 0" }}>
-              <b>{it.position}. {it.role}</b> — {it.card.name} {it.is_reversed ? "(역)" : "(정)"}
-            </li>
-          ))}
-        </ul>
-      </section>
+    <main className="p-6 max-w-5xl mx-auto">
+      <ReadingResult data={mapped} />
     </main>
   );
 }
