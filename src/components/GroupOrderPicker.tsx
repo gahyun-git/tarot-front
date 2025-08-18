@@ -43,7 +43,7 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
               onDragStart={!isTouch ? ((e)=>{ e.dataTransfer.setData('text/x-card', k); e.dataTransfer.effectAllowed='move'; dragStartRef.current = { x: e.clientX, y: e.clientY }; }) : undefined}
               onTouchStart={isTouch ? (()=>{ dragKeyRef.current = k; }) : undefined}
               onTouchMove={isTouch ? ((e)=>{
-                e.preventDefault();
+                if (e.cancelable) e.preventDefault();
                 const t = e.touches[0];
                 const el = document.elementFromPoint(t.clientX, t.clientY) as HTMLElement | null;
                 if (el && el.closest('.stack-target')) {
@@ -68,7 +68,7 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
                 document.querySelector('.stack-target')?.classList.remove('space-target-pulse');
               }) : undefined}
               title={t(`group.${k}.label`)}
-              style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none', WebkitUserDrag: 'none' as unknown as string }}
+              style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none', touchAction: 'none' }}
             >
               <div className="stack-card-img" style={{ backgroundImage: `url(${imgFor[k]})` }} />
               <div className="stack-card-badge">{t(`group.${k}.label`)}</div>
@@ -95,7 +95,8 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
           setPulseKey((v)=> v+1);
           setTimeout(()=> setPulsing(false), 420);
         }}
-             onTouchMove={isTouch ? ((e)=>{ e.preventDefault(); }) : undefined}
+             onTouchMove={isTouch ? ((e)=>{ if (e.cancelable) e.preventDefault(); }) : undefined}
+             style={{ touchAction: 'none' }}
         >
           <div className="stack-target-actions">
             <button type="button" className="btn-outline btn-reset" onClick={()=>{ setPlaced([]); onChange(["B","C","A"] as Order); }}>{t('picker.reset')}</button>
