@@ -34,7 +34,7 @@ export default function SpreadPicker() {
     setLoading(true);
     try {
       const d = await getDaily({ lang: locale, use_llm: false });
-      if (d?.id) window.location.href = `/reading/${d.id}`;
+      if (d?.id) window.location.href = `/reading/local/${d.id}`;
     } finally { setLoading(false); }
   };
 

@@ -205,7 +205,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
             onError={(e)=>{ e.currentTarget.src = '/bmc-button.svg'; }}
           />
         </a>
-        <button className="retro-btn-outline" onClick={handleCopyLink}>
+        <button className="space-btn" onClick={handleCopyLink}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
             <path d="M3.9 12a5 5 0 0 1 1.46-3.54l3.1-3.1a5 5 0 0 1 7.07 7.07l-1.06 1.06-1.41-1.41 1.06-1.06a3 3 0 1 0-4.24-4.24l-3.1 3.1A3 3 0 0 0 5.9 12a3 3 0 0 0 .88 2.12l1.06 1.06-1.41 1.41-1.06-1.06A5 5 0 0 1 3.9 12zm6.58 6.64l-1.06 1.06a5 5 0 1 1 7.07-7.07l1.06 1.06-1.41 1.41-1.06-1.06a3 3 0 1 0-4.24 4.24l1.06 1.06-1.41 1.41z"/>
           </svg>

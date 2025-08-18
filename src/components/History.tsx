@@ -27,7 +27,7 @@ export default function History({ onSelect }: { onSelect?: (data: ReadingRespons
       <ul className="space-y-2">
         {list.map(item=> (
           <li key={item.id} className="flex items-center justify-between space-card">
-            <button className="flex-1 text-left p-3 min-w-0" onClick={()=> { try { window.location.href = `/reading/${item.id}`; } catch { onSelect?.(item.data); } }}>
+            <button className="flex-1 text-left p-3 min-w-0" onClick={()=> { try { window.location.href = `/reading/local/${item.id}`; } catch { onSelect?.(item.data); } }}>
               <div className="text-sm opacity-70 whitespace-nowrap overflow-hidden text-ellipsis">{new Date(item.createdAt).toLocaleString(undefined, { hour12: false })}</div>
               <div className="font-medium truncate max-w-full">
                 {item.data?.question?.trim()?.length ? item.data.question : (item.data.count === 1 ? t('spread.daily') : t('spread.eight'))}

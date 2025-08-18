@@ -21,7 +21,7 @@ export default function ReadingDetail() {
         const r = await getReadingById(id);
         setData(r);
         const newLocalId = addToHistory(r);
-        if (newLocalId && newLocalId !== id) router.replace(`/reading/${newLocalId}`);
+        if (newLocalId && newLocalId !== id) router.replace(`/reading/local/${newLocalId}`);
       } catch {
         router.replace("/");
       }

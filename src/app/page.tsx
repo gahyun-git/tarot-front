@@ -77,7 +77,7 @@ export default function Home() {
 
       <section id="form" className="space-panel p-6">
         <h2 className="text-xl font-extrabold mb-3" suppressHydrationWarning>{mounted ? t("form.title") : ""}</h2>
-        <ReadingForm onSuccess={(d)=>{ setResult(d); try { const id = addToHistory(d); window.location.href = `/reading/${id}`; } catch { window.location.href = `/reading/local`; } }} onLoadingChange={setLoading} />
+        <ReadingForm onSuccess={(d)=>{ setResult(d); try { const id = addToHistory(d); window.location.href = `/reading/local/${id}`; } catch { window.location.href = `/reading/local`; } }} onLoadingChange={setLoading} />
       </section>
       {loading && <ReadingResultSkeleton />}
 
@@ -86,7 +86,7 @@ export default function Home() {
       
       {!loading && (
         <section className="space-panel p-6">
-          <History onSelect={(d)=>{ const id = addToHistory(d); window.location.href = `/reading/${id}`; }} />
+          <History onSelect={(d)=>{ const id = addToHistory(d); window.location.href = `/reading/local/${id}`; }} />
         </section>
       )}
 
