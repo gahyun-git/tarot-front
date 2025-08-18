@@ -391,13 +391,37 @@ function FullInterpret({ readingId }: { readingId: string }) {
         const questionField = (result as { question?: unknown }).question;
         const sectionsField = (result as { sections?: Record<string, { card?: string; orientation?: string; analysis?: string }> }).sections;
 
+        // Helper: strip card names and orientations from plain text for better readability in summary/advices
+        const sanitizeText = (text: string): string => {
+          if (!text) return text;
+          try {
+            const names: string[] = Array.isArray(items)
+              ? items.map((it)=> String(((it as { card?: { name?: string } }).card || {}).name || "")).filter(Boolean)
+              : [];
+            if (names.length) {
+              // longer names first to avoid partial overlaps
+              names.sort((a,b)=> b.length - a.length);
+              const escaped = names.map((n)=> n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+              const nameRe = new RegExp(`(?:${escaped.join("|")})`, 'g');
+              text = text.replace(nameRe, '').replace(/\s{2,}/g,' ').trim();
+            }
+            // remove common orientation tokens
+            text = text
+              .replace(/\((?:정|역|upright|reversed|正|逆|正位|逆位)\)/g, '')
+              .replace(/\b(?:정|역|upright|reversed|正|逆|正位|逆位)\b/g, '')
+              .replace(/\s{2,}/g,' ').trim();
+            return text;
+          } catch { return text; }
+        };
+
         const hasStructured = !!items && (typeof summaryField === 'string' || Array.isArray(summaryField));
         if (hasStructured) {
-          const summary = Array.isArray(summaryField)
+          const rawSummary = Array.isArray(summaryField)
             ? (summaryField as string[]).join('\n')
             : (typeof summaryField === 'string' ? (summaryField as string) : '');
+          const summary = sanitizeText(rawSummary);
           const advices = Array.isArray(advicesField)
-            ? (advicesField as string[]).map((s)=>`- ${s}`).join('\n')
+            ? (advicesField as string[]).map((s)=>`- ${sanitizeText(String(s))}`).join('\n')
             : '';
 
           const lines: string[] = [];
@@ -417,7 +441,7 @@ function FullInterpret({ readingId }: { readingId: string }) {
               ? (advicesField as string[])
               : (typeof advicesField === 'string' ? [(advicesField as string)] : []);
             for (const a of advArr) {
-              const txt = String(a).trim();
+              const txt = sanitizeText(String(a)).trim();
               if (txt) { lines.push(txt); lines.push(''); }
             }
           }
@@ -452,7 +476,6 @@ function FullInterpret({ readingId }: { readingId: string }) {
           }
 
           if (sectionsField && typeof sectionsField === 'object') {
-            lines.push(`## ${t('nav.sections')}`);
             const preferred = ['이슈','과거','현재','근미래','내면','외부','솔루션'];
             const entries = Object.entries(sectionsField as Record<string, { card?: string; orientation?: string; analysis?: string }>);
             entries.sort((a,b)=> preferred.indexOf(a[0]) - preferred.indexOf(b[0]));
@@ -467,12 +490,7 @@ function FullInterpret({ readingId }: { readingId: string }) {
             }
           }
 
-          lines.push(`## ${t('nav.advices')}`);
-          // Render advices as separate paragraphs to apply <p> block styles
-          const advArr2 = Array.isArray(advices)
-            ? (advices as string[])
-            : (typeof advices === 'string' ? [advices as string] : []);
-          for (const a of advArr2) { const txt = String(a).trim(); if (txt) { lines.push(txt); lines.push(''); } }
+          // advices were already placed under summary above; do not repeat here
           return lines.join('\n').trim();
         }
 
