@@ -6,7 +6,6 @@ const RESOLVED_BASE = (
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   ""
 ).replace(/\/$/, "");
-const API_KEY = (process.env.TAROT_API_KEY || process.env.API_KEY || "").trim();
 const HMAC_SECRET = (process.env.TAROT_HMAC_SECRET || process.env.HMAC_SECRET || "").trim();
 const CLIENT_ID = (process.env.TAROT_CLIENT_ID || process.env.CLIENT_ID || "tarot-front").trim();
 
@@ -31,16 +30,11 @@ async function forwardGet(req: NextRequest, targetPath: string) {
   if (!RESOLVED_BASE) {
     return NextResponse.json({ error: { message: "TAROT_API_BASE_URL not set (fallbacks UPSTREAM_API_BASE_URL / NEXT_PUBLIC_API_BASE_URL also empty)" } }, { status: 500 });
   }
-  const url = `${RESOLVED_BASE}${targetPath}${req.nextUrl.search}`;
-  try {
-    const r = await fetch(url, { method: "GET" });
-    return new NextResponse(r.body, { status: r.status, headers: r.headers });
-  } catch (err) {
-    return NextResponse.json(
-      { error: { message: "Upstream fetch failed", detail: (err as Error)?.message } },
-      { status: 502 }
-    );
+  // HMAC만 사용하도록 통일
+  if (!HMAC_SECRET) {
+    return NextResponse.json({ error: { message: "HMAC_SECRET not set" } }, { status: 500 });
   }
+  return forwardWithHmac(req, targetPath);
 }
 
 async function forwardWithApiKey(req: NextRequest, targetPath: string) {
@@ -158,11 +152,7 @@ export async function GET(
     };
     return NextResponse.json(mock);
   }
-  // 개별 리딩 원본 조회 허용: GET /api/tarot/reading/{id}
-  if (/^\/reading\/[^/]+$/.test(targetPath)) {
-    return forwardGet(req, targetPath);
-  }
-  // 기본적으로 읽기 엔드포인트는 인증 없이 프록시
+  // 모든 GET 요청도 HMAC로 포워딩
   return forwardGet(req, targetPath);
 }
 
@@ -173,19 +163,8 @@ export async function POST(
   const { path } = await params;
   const targetPath = buildTargetPath({ path });
   if (!RESOLVED_BASE) return NextResponse.json({ error: { message: "TAROT_API_BASE_URL not set (fallbacks UPSTREAM_API_BASE_URL / NEXT_PUBLIC_API_BASE_URL also empty)" } }, { status: 500 });
-  if (API_KEY) return forwardWithApiKey(req, targetPath);
-  if (HMAC_SECRET) return forwardWithHmac(req, targetPath);
-  // 인증 비활성화 시 단순 프록시 (개발용)
-  const url = `${RESOLVED_BASE}${targetPath}${req.nextUrl.search}`;
-  try {
-    const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: await req.text() });
-    return new NextResponse(r.body, { status: r.status, headers: r.headers });
-  } catch (err) {
-    return NextResponse.json(
-      { error: { message: "Upstream fetch failed", detail: (err as Error)?.message } },
-      { status: 502 }
-    );
-  }
+  if (!HMAC_SECRET) return NextResponse.json({ error: { message: "HMAC_SECRET not set" } }, { status: 500 });
+  return forwardWithHmac(req, targetPath);
 }
 
 

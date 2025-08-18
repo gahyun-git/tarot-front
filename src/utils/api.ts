@@ -1,15 +1,9 @@
 export const API = process.env.NEXT_PUBLIC_API_URL ?? "https://api.go4it.site";
 // 클라이언트에서 비밀키 노출 없이 호출하기 위해 Next.js API 프록시 사용
 const PROXY = "/api/tarot";
-const PUBLIC_API_KEY = process.env.NEXT_PUBLIC_API_KEY;
-
 function authHeaders(): Record<string, string> {
-	const h: Record<string, string> = { "Content-Type": "application/json" };
-	if (PUBLIC_API_KEY && PUBLIC_API_KEY.trim()) {
-		h["Authorization"] = `Bearer ${PUBLIC_API_KEY}`;
-		h["x-api-key"] = PUBLIC_API_KEY; // 백엔드 설정에 따라 둘 중 하나 사용
-	}
-	return h;
+	// 프록시가 HMAC 서명/전송을 처리하므로 여기서는 콘텐츠 타입만 지정
+	return { "Content-Type": "application/json" };
 }
 
 export async function createReading(payload: {
