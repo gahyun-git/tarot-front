@@ -15,6 +15,10 @@ export default function TopBar() {
           <Link href="/" className="space-brand">
             <span>🔮 Tarot</span>
           </Link>
+          <Link href="/about" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.about")}</Link>
+          <Link href="/privacy" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.privacy")}</Link>
+          <Link href="/terms" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.terms")}</Link>
+          <Link href="/contact" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.contact")}</Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-3">
           <label className="text-xs md:text-sm" suppressHydrationWarning>{mounted ? t("form.lang") : ""}</label>

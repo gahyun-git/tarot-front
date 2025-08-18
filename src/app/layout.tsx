@@ -55,6 +55,7 @@ export const metadata: Metadata = {
     siteName: "go4it.site",
     images: [
       { url: "/window.svg", width: 1200, height: 630, alt: "Tarot" },
+      { url: "/card.svg", width: 1200, height: 630, alt: "Tarot Cards" },
     ],
   },
   twitter: {

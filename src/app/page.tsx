@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { decompressFromEncodedURIComponent } from "lz-string";
 import ReadingForm from "@/components/ReadingForm";
 import ReadingResultSkeleton from "@/components/ReadingResultSkeleton";
@@ -33,6 +32,22 @@ export default function Home() {
   }, []);
   return (
     <main className="p-6 max-w-5xl mx-auto space-y-8 pb-40">
+      {/* Organization JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'go4it.site',
+          url: (process.env.NEXT_PUBLIC_SITE_URL || 'https://go4it.site'),
+          contactPoint: [{
+            '@type': 'ContactPoint',
+            email: 'go4it.gh@gmail.com',
+            contactType: 'customer support',
+            availableLanguage: ['ko','en','ja','zh']
+          }]
+        }) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify({

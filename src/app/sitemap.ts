@@ -5,8 +5,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();
   const urls: MetadataRoute.Sitemap = [
     { url: `${siteUrl}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
-    { url: `${siteUrl}/reading/preview`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${siteUrl}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${siteUrl}/contact`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${siteUrl}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${siteUrl}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${siteUrl}/disclaimer`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${siteUrl}/content`, lastModified: now, changeFrequency: "weekly", priority: 0.5 },
   ];
+
+  const langs = ["ko", "en", "ja", "zh"] as const;
+  const contentSlugs = [
+    "spread/three-cards",
+    "spread/eight-positions",
+    "guide/getting-started",
+    "guide/spreads",
+  ];
+  for (const slug of contentSlugs) {
+    for (const lang of langs) {
+      urls.push({
+        url: `${siteUrl}/content/${slug}?lang=${lang}`,
+        lastModified: now,
+        changeFrequency: "monthly",
+        priority: 0.5,
+      });
+    }
+  }
   return urls;
 }
 
