@@ -502,9 +502,6 @@ function FullInterpret({ readingId }: { readingId: string }) {
   }
   if (err) return <div className="text-sm text-red-500 p-3">{err}</div>;
   if (!text) return null;
-  // 첫 줄이 테스트/시스템 제목처럼 보이는 경우 제거
-  const sanitized = text
-    .replace(/^\s*#{1,6}\s+.*$/m, "")
-    .replace(/^\s*\n+/, "");
-  return <div className="p-3"><Markdown text={sanitized} /></div>;
+  // 백엔드 응답을 그대로 출력
+  return <div className="p-3"><Markdown text={text} /></div>;
 }
