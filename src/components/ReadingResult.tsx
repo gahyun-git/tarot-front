@@ -392,6 +392,18 @@ function FullInterpret({ readingId }: { readingId: string }) {
 
           lines.push(`## ${t('nav.summary')}`);
           if (summary) lines.push(summary);
+          // Move advices right under summary and render as paragraphs (not list) so <p> styles apply
+          if (advices) {
+            lines.push('');
+            lines.push(`## ${t('nav.advices')}`);
+            const advArr = Array.isArray(advicesField)
+              ? (advicesField as string[])
+              : (typeof advicesField === 'string' ? [(advicesField as string)] : []);
+            for (const a of advArr) {
+              const txt = String(a).trim();
+              if (txt) { lines.push(txt); lines.push(''); }
+            }
+          }
           lines.push('');
 
           lines.push(`## ${t('nav.positions')}`);
@@ -439,7 +451,11 @@ function FullInterpret({ readingId }: { readingId: string }) {
           }
 
           lines.push(`## ${t('nav.advices')}`);
-          if (advices) lines.push(advices);
+          // Render advices as separate paragraphs to apply <p> block styles
+          const advArr2 = Array.isArray(advices)
+            ? (advices as string[])
+            : (typeof advices === 'string' ? [advices as string] : []);
+          for (const a of advArr2) { const txt = String(a).trim(); if (txt) { lines.push(txt); lines.push(''); } }
           return lines.join('\n').trim();
         }
 
