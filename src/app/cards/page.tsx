@@ -23,7 +23,7 @@ async function fetchAllCards() {
 
 type SortKey = "id-asc" | "id-desc" | "name-asc" | "name-desc" | "arcana-major" | "arcana-minor";
 
-function sortCards(cards: Array<{ id: number; name: string; arcana: string }>, key: SortKey) {
+function sortCards<T extends { id: number; name: string; arcana: string }>(cards: Array<T>, key: SortKey): Array<T> {
   const byName = (a: string, b: string) => a.localeCompare(b);
   const arcanaRank = (v: string) => (String(v).toLowerCase() === "major" ? 0 : 1);
   const cloned = [...cards];
@@ -77,7 +77,7 @@ export default async function CardsIndexPage({ searchParams }: { searchParams: P
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
         {cards.map((c) => {
-          const src = c.image_url || `/static/cards/${String(c.id ?? 0).padStart(2, "0")}.jpg`;
+          const src = ("image_url" in c && c.image_url) ? (c as { image_url?: string | null }).image_url || `/static/cards/${String(c.id ?? 0).padStart(2, "0")}.jpg` : `/static/cards/${String(c.id ?? 0).padStart(2, "0")}.jpg`;
           return (
             <Link key={c.id} href={`/cards/${c.id}`} className="block group">
               <div className="relative w-full" style={{ aspectRatio: 2 / 3 }}>
