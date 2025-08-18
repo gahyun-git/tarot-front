@@ -54,8 +54,7 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "go4it.site",
     images: [
-      { url: "/window.svg", width: 1200, height: 630, alt: "Tarot" },
-      { url: "/card.svg", width: 1200, height: 630, alt: "Tarot Cards" },
+      { url: "/card-retro.png", width: 1200, height: 630, alt: "Tarot" },
     ],
   },
   twitter: {
@@ -63,7 +62,7 @@ export const metadata: Metadata = {
     site: "@",
     title: "Tarot Reading",
     description: "AI 기반 타로 리딩",
-    images: ["/window.svg"],
+    images: ["/card-retro.png"],
   },
   icons: { icon: "/favicon.ico" },
 };
