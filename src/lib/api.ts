@@ -73,7 +73,7 @@ export async function getCard(id: number) {
 
 export async function getCards(): Promise<{ total: number; items: Array<{ id: number; name: string; arcana: string; suit?: string | null; image_url?: string | null }> }> {
   const base = (PUBLIC_API_BASE || API_BASE).replace(/\/$/, "");
-  const url = `${base}/cards`;
+  const url = `${base}/cards/`;
   const r = await fetch(url, { method: "GET", cache: 'no-store' });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
@@ -176,12 +176,18 @@ export async function getCardMeanings(cardId: number, params: { lang?: string } 
   return data as { id: number; lang: string; upright?: string[]; reversed?: string[] };
 }
 
-export async function getSpreads() {
+export async function getSpreads(): Promise<{
+  items?: Array<{ code?: string; name?: string; positions?: Record<number, string> }>;
+  spreads?: Array<{ id: string; name: string; count: number }>;
+}> {
   const base = (PUBLIC_API_BASE || API_BASE).replace(/\/$/, "");
   const path = `/reading/spreads`;
   const url = `${base}${path}`;
   const r = await fetch(url);
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
-  return data as unknown;
+  return data as {
+    items?: Array<{ code?: string; name?: string; positions?: Record<number, string> }>;
+    spreads?: Array<{ id: string; name: string; count: number }>;
+  };
 }

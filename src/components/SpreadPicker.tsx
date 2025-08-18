@@ -11,9 +11,23 @@ export default function SpreadPicker() {
   const [loading, setLoading] = useState(false);
   useEffect(() => { (async () => {
     try {
-      const r = await getSpreads() as { spreads?: Spread[] };
-      setItems(Array.isArray(r?.spreads) ? r.spreads : []);
-    } catch { setItems([]); }
+      const r = await getSpreads() as { items?: Array<{ code?: string; name?: string; positions?: Record<number,string> }>; spreads?: Spread[] };
+      // 백엔드 표준 응답 { items: [...] }
+      if (Array.isArray(r?.items)) {
+        const mapped: Spread[] = r.items.map((it)=> ({ id: (it.code || "8-basic"), name: (it.name || "Spread"), count: (it.positions ? Object.keys(it.positions).length : 8) }));
+        setItems(mapped);
+        return;
+      }
+      // 구형/임시 응답 { spreads: [...] }
+      if (Array.isArray((r as { spreads?: Spread[] }).spreads)) {
+        setItems(((r as { spreads?: Spread[] }).spreads) as Spread[]);
+        return;
+      }
+      // 폴백: 정적 목록
+      setItems([{ id: "daily", name: "Daily", count: 1 }, { id: "8-basic", name: "Eight Positions", count: 8 }]);
+    } catch {
+      setItems([{ id: "daily", name: "Daily", count: 1 }, { id: "8-basic", name: "Eight Positions", count: 8 }]);
+    }
   })(); }, []);
 
   const runDaily = async () => {

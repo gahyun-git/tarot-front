@@ -1,11 +1,12 @@
 import Link from "next/link";
-import NextImage, { type ImageLoader } from "next/image";
+// no image loader in server file
 import { getCard, getCards } from "@/lib/api";
+import CardsGrid from "@/components/CardsGrid";
 
-const passthroughLoader: ImageLoader = ({ src }) => {
-  if (src.startsWith("/static/")) return `/api/tarot${src}`;
-  return src;
-};
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+// image loader moved to client grid component
 
 async function fetchAllCards() {
   try {
@@ -52,45 +53,13 @@ export default async function CardsIndexPage({ searchParams }: { searchParams: P
   const sort = (sp?.sort || "id-asc") as SortKey;
   const cardsRaw = await fetchAllCards();
   const cards = sortCards(cardsRaw, sort);
+  const count = Array.isArray(cards) ? cards.length : 0;
   return (
     <main className="space-panel p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between gap-3 mb-4">
-        <h1 className="text-2xl font-bold">Cards</h1>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="opacity-80">정렬</span>
-          <nav className="flex flex-wrap gap-1">
-            {[
-              { k: "id-asc", label: "번호↑" },
-              { k: "id-desc", label: "번호↓" },
-              { k: "name-asc", label: "이름A-Z" },
-              { k: "name-desc", label: "이름Z-A" },
-              { k: "arcana-major", label: "메이저→마이너" },
-              { k: "arcana-minor", label: "마이너→메이저" },
-            ].map((opt) => (
-              <Link
-                key={opt.k}
-                href={`/cards?sort=${opt.k}`}
-                className={`space-chip ${sort === (opt.k as SortKey) ? "on" : ""}`}
-              >
-                {opt.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        <h1 className="text-2xl font-bold">Cards{count ? ` (${count})` : ""}</h1>
       </div>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
-        {cards.map((c) => {
-          const src = ("image_url" in c && c.image_url) ? (c as { image_url?: string | null }).image_url || `/static/cards/${String(c.id ?? 0).padStart(2, "0")}.jpg` : `/static/cards/${String(c.id ?? 0).padStart(2, "0")}.jpg`;
-          return (
-            <Link key={c.id} href={`/cards/${c.id}`} className="block group">
-              <div className="relative w-full" style={{ aspectRatio: 2 / 3 }}>
-                <NextImage loader={passthroughLoader} src={src} alt={c.name} fill className="object-cover rounded-lg" sizes="(max-width:768px) 33vw, 160px" />
-              </div>
-              <div className="mt-1 text-sm opacity-90 group-hover:opacity-100 truncate" title={c.name}>{c.name}</div>
-            </Link>
-          );
-        })}
-      </div>
+      <CardsGrid initialCards={cards} sort={sort} />
     </main>
   );
 }
