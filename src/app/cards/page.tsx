@@ -1,6 +1,6 @@
 import Link from "next/link";
 import NextImage, { type ImageLoader } from "next/image";
-import { getCard } from "@/lib/api";
+import { getCard, getCards } from "@/lib/api";
 
 const passthroughLoader: ImageLoader = ({ src }) => {
   if (src.startsWith("/static/")) return `/api/tarot${src}`;
@@ -8,17 +8,20 @@ const passthroughLoader: ImageLoader = ({ src }) => {
 };
 
 async function fetchAllCards() {
-  // 백엔드 목록 엔드포인트가 없을 경우 1..78 범위를 조회
-  const items: Array<{ id: number; name: string; arcana: string; image_url?: string | null }> = [];
-  for (let i = 1; i <= 78; i++) {
-    try {
-      const c = await getCard(i);
-      if (c && typeof c.id === "number") items.push(c);
-    } catch {
-      // ignore missing ids
+  try {
+    const list = await getCards();
+    return list.items || [];
+  } catch {
+    // 폴백: 1..78 개별 조회
+    const items: Array<{ id: number; name: string; arcana: string; image_url?: string | null }> = [];
+    for (let i = 1; i <= 78; i++) {
+      try {
+        const c = await getCard(i);
+        if (c && typeof c.id === "number") items.push(c);
+      } catch {}
     }
+    return items;
   }
-  return items;
 }
 
 type SortKey = "id-asc" | "id-desc" | "name-asc" | "name-desc" | "arcana-major" | "arcana-minor";
