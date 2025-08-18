@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 type Card = { id: number; name: string; arcana: string; image_url?: string | null };
 type CardWithContext = { position: number; role: string; is_reversed: boolean; used_meanings?: string[] | null; card: Card; llm_detail?: string | null };
 type FullReadingResult = {
@@ -8,15 +9,29 @@ type FullReadingResult = {
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "https://api.go4it.site";
 
-async function getData(slug: string): Promise<FullReadingResult> {
-  const res = await fetch(`${API}/reading/s/${encodeURIComponent(slug)}/result?use_llm=false`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+const isUuid = (v: string) =>
+  /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(v);
+
+async function getData(key: string): Promise<FullReadingResult | null> {
+  // 1) 슬러그 시도
+  try {
+    const r = await fetch(`${API}/reading/s/${encodeURIComponent(key)}/result?use_llm=false`, { cache: "no-store" });
+    if (r.ok) return (await r.json()) as FullReadingResult;
+  } catch {}
+  // 2) UUID 폴백
+  if (isUuid(key)) {
+    try {
+      const r2 = await fetch(`${API}/reading/${key}/result?use_llm=false`, { cache: "no-store" });
+      if (r2.ok) return (await r2.json()) as FullReadingResult;
+    } catch {}
+  }
+  return null;
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const data = await getData(slug);
+  if (!data) return notFound();
   return (
     <main style={{ padding: 24, maxWidth: 860, margin: "0 auto" }}>
       <h1>Tarot Reading</h1>
