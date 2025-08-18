@@ -34,8 +34,18 @@ export default function SpreadPicker() {
     setLoading(true);
     try {
       const d = await getDaily({ lang: locale, use_llm: false });
-      if (d?.id) window.location.href = `/reading/${d.id}`;
-    } finally { setLoading(false); }
+      console.log('Daily response:', d);
+      if (d?.id) {
+        console.log('Redirecting to:', `/reading/${d.id}`);
+        window.location.href = `/reading/${d.id}`;
+      } else {
+        console.error('No id in daily response');
+      }
+    } catch (e) {
+      console.error('Daily error:', e);
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   const goForm = (id: string) => {

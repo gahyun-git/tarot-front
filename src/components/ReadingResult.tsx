@@ -270,7 +270,7 @@ function ResultLine({ position, label, id, name, reversed, isDaily }: { position
       {meaning && (
         <div className="mt-1 text-sm space-y-1">
            {meaning.keywords?.length && meaning.keywords.length>0 && <div><strong>{t('label.keywords')}</strong>: {meaning.keywords.join(', ')}</div>}
-          <div><strong>{t('orientation.upright')}</strong>: {meaning.upright}</div>
+          {meaning.upright && <div><strong>{t('orientation.upright')}</strong>: {meaning.upright}</div>}
           {meaning.reversed && <div><strong>{t('orientation.reversed')}</strong>: {meaning.reversed}</div>}
         </div>
       )}
