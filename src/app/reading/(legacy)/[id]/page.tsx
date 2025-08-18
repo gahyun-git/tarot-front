@@ -17,10 +17,9 @@ export default function ReadingDetail() {
       if (!id) { router.replace("/"); return; }
       const item = getHistoryById(id);
       if (item) { setData(item.data); return; }
-      // 히스토리에 없으면 백엔드에서 조회 시도 → 즉시 화면에 표시하고, 이어서 히스토리에 저장 후 로컬 ID로 교체
       try {
         const r = await getReadingById(id);
-        setData(r); // 먼저 화면 표시
+        setData(r);
         const newLocalId = addToHistory(r);
         if (newLocalId && newLocalId !== id) router.replace(`/reading/${newLocalId}`);
       } catch {

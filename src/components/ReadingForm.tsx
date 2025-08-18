@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import type { GroupOrder, ReadingResponse } from "@/lib/api";
 import GroupOrderPicker from "@/components/GroupOrderPicker";
 import { useI18n } from "@/lib/i18n";
-import { postReading, getDaily } from "@/lib/api";
+ 
+import { createReading, createShare } from "@/utils/api";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+ 
 
 export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess: (data: ReadingResponse) => void; onLoadingChange?: (v: boolean)=>void }) {
   const [question, setQuestion] = useState("");
@@ -17,14 +18,27 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (vars: {
+    mutationFn: async (vars: {
       question: string;
       group_order: GroupOrder[];
       shuffle_times: number;
       seed: number | null;
       allow_reversed: boolean;
-    }) => postReading(vars),
-    onSuccess: (data) => onSuccess(data),
+    }) => {
+      const created = await createReading(vars as unknown as {
+        question: string; group_order: ("A"|"B"|"C")[]; shuffle_times: number; seed?: number | null; allow_reversed: boolean;
+      });
+      const share = await createShare(created.id as string);
+      return { created, slug: share.slug } as unknown as ReadingResponse;
+    },
+    onSuccess: (data: unknown) => {
+      const r = data as { created?: ReadingResponse; slug?: string };
+      if (r?.slug) {
+        window.location.href = `/reading/${r.slug}`;
+      } else if (r?.created) {
+        onSuccess(r.created);
+      }
+    },
     onError: (err: unknown) => {
       const message = err instanceof Error ? err.message : "request failed";
       setError(message);
@@ -46,23 +60,7 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
     });
   };
 
-  const router = useRouter();
-  const [dailyLoading, setDailyLoading] = useState(false);
-  const daily = async () => {
-    setDailyLoading(true);
-    setLoading(true); onLoadingChange?.(true); setError(null);
-    try {
-      const d: { id?: string; text?: string } = await getDaily({ lang: "auto", use_llm: false });
-      if (d?.id) {
-        try { router.prefetch(`/reading/${d.id}`); } catch {}
-        await router.push(`/reading/${d.id}`);
-      } else {
-        alert(d?.text || "No content");
-      }
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "request failed");
-    } finally { setLoading(false); onLoadingChange?.(false); setDailyLoading(false); }
-  };
+ 
 
   const { t } = useI18n();
   const [mounted, setMounted] = useState(false);
@@ -111,11 +109,7 @@ export default function ReadingForm({ onSuccess, onLoadingChange }: { onSuccess:
           </button>
         </div>
       )}
-      {dailyLoading && (
-        <div className="space-progress mt-1" aria-live="polite">
-          <div className="bar" style={{ width: '66%' }} />
-        </div>
-      )}
+      
       {error && (
         <div className="text-red-600 flex items-center gap-2" role="alert" aria-live="assertive">
           <span>{error}</span>

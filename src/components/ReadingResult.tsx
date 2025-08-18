@@ -35,7 +35,6 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
   const [open, setOpen] = useState(false);
   const [focus, setFocus] = useState(data.items[0]);
   const boardRef = useRef<HTMLDivElement | null>(null);
-  const [revealedSet, setRevealedSet] = useState<Set<number>>(()=> new Set());
   const delayFor = (pos: number) => {
     const order = [1,2,3,4,5,6,7,8];
     const idx = order.indexOf(pos);
@@ -46,7 +45,6 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
 
   // 새 결과가 들어오면 공개상태/포커스를 초기화하여 항상 뒷면부터 보이도록
   useEffect(() => {
-    setRevealedSet(new Set());
     setOpen(false);
     setFocus(data.items[0]);
     // optional: scroll to top of board
@@ -84,18 +82,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           <div className="text-sm opacity-80">{t('share.copied')}</div>
         </div>
       </Modal>
-      <div className="md:sticky md:top-2 z-20">
-            <div className="fixed inset-x-0 bottom-0 md:static z-30">
-                <div className="flex items-center gap-2 md:justify-end">
-                <button className="retro-btn-outline" onClick={handleCopyLink}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                    <path d="M3.9 12a5 5 0 0 1 1.46-3.54l3.1-3.1a5 5 0 0 1 7.07 7.07l-1.06 1.06-1.41-1.41 1.06-1.06a3 3 0 1 0-4.24-4.24l-3.1 3.1A3 3 0 0 0 5.9 12a3 3 0 0 0 .88 2.12l1.06 1.06-1.41 1.41-1.06-1.06A5 5 0 0 1 3.9 12zm6.58 6.64l-1.06 1.06a5 5 0 1 1 7.07-7.07l1.06 1.06-1.41 1.41-1.06-1.06a3 3 0 1 0-4.24 4.24l1.06 1.06-1.41 1.41z"/>
-                  </svg>
-                  {t("share.copy")}
-                </button>
-                 </div>
-          </div>
-        </div>
+      
       {/* 단일 그리드: md에서 4열, 8번은 우측 컬럼(row2)에 고정. 모바일은 2열 + 8번은 마지막에 표시 */}
       <div id="reading-board" ref={boardRef} className="relative z-10 pb-24 md:pb-0">
         <div className="grid grid-cols-[max-content_max-content_max-content] gap-x-1 gap-y-3 md:grid-cols-3 md:gap-x-2 md:gap-y-5 items-start w-fit mx-auto">
@@ -131,12 +118,8 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
                   <Card
                     {...it}
                      label={isDaily ? undefined : posLabel(it.position)}
-                    revealed={revealedSet.has(pos)}
                     delay={delayFor(pos)}
-                    onClick={()=>{
-                      if (!revealedSet.has(pos)) setRevealedSet(prev=> new Set([...prev, pos]));
-                      else { setFocus(it); setOpen(true); }
-                    }}
+                    onClick={()=>{ setFocus(it); setOpen(true); }}
                   />
                 </motion.div>
               );
@@ -181,7 +164,6 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
         <div className="divider my-2"></div>
         <ul className="retro-result-list">
           {data.items
-            .filter(i=> revealedSet.has(i.position))
             .sort((a,b)=> a.position-b.position)
             .map((it)=> (
               <li key={it.position} className="space-card">
@@ -206,8 +188,8 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           </details>
         )}
       </section>
-      {/* Support link */}
-      <div className="max-w-5xl mx-auto mt-6 flex justify-center">
+      {/* Support link + Share */}
+      <div className="max-w-5xl mx-auto mt-6 flex items-center justify-center gap-3 flex-wrap">
         <a
           href="https://www.buymeacoffee.com/go4it"
           target="_blank"
@@ -215,13 +197,20 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           className="inline-block"
           aria-label="Buy me a coffee"
         >
-          <img 
-            src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=go4it&button_colour=BD5FFF&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00"
-            alt="Buy me a coffee"
+          <img
+            src="https://img.buymeacoffee.com/button-api/?text=Buy%20us%20a%20sweet%20potato&emoji=&slug=go4it&button_colour=6449e9&font_colour=ffffff&font_family=Bree&outline_colour=ffffff&coffee_colour=FFDD00"
+            alt="Buy us a sweet potato"
             width={280}
             height={64}
+            onError={(e)=>{ e.currentTarget.src = '/bmc-button.svg'; }}
           />
         </a>
+        <button className="retro-btn-outline" onClick={handleCopyLink}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <path d="M3.9 12a5 5 0 0 1 1.46-3.54l3.1-3.1a5 5 0 0 1 7.07 7.07l-1.06 1.06-1.41-1.41 1.06-1.06a3 3 0 1 0-4.24-4.24l-3.1 3.1A3 3 0 0 0 5.9 12a3 3 0 0 0 .88 2.12l1.06 1.06-1.41 1.41-1.06-1.06A5 5 0 0 1 3.9 12zm6.58 6.64l-1.06 1.06a5 5 0 1 1 7.07-7.07l1.06 1.06-1.41 1.41-1.06-1.06a3 3 0 1 0-4.24 4.24l1.06 1.06-1.41 1.41z"/>
+          </svg>
+          {t("share.copy")}
+        </button>
       </div>
     </section>
   );
@@ -231,7 +220,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
 
 // overlay 배지는 카드 타일에서는 제거 (요청사항)
 
-function Card(props: { position: number; is_reversed: boolean; label?: string; card: { id?: number; name: string; image_url?: string | null }; revealed?: boolean; delay?: number; onClick?: ()=>void }) {
+function Card(props: { position: number; is_reversed: boolean; label?: string; card: { id?: number; name: string; image_url?: string | null }; delay?: number; onClick?: ()=>void }) {
   return (
     <motion.button
       onClick={props.onClick}
@@ -243,35 +232,17 @@ function Card(props: { position: number; is_reversed: boolean; label?: string; c
     >
       <div className="w-full relative rounded-xl overflow-hidden retro-card" style={{ aspectRatio: 2/3 }}>
         {props.label && (<span className="space-chip absolute top-1 left-1 z-10">{props.label}</span>)}
-        <motion.div
-          className="absolute inset-0"
-          animate={{ rotateY: props.revealed ? 0 : 180 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          style={{ transformStyle: "preserve-3d", perspective: 1000 }}
-        >
-          <div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
-            <NextImage
-              loader={passthroughLoader}
-              src={props.card.image_url || `/static/cards/${String(props.card.id ?? 0).padStart(2,'0')}.jpg`}
-              alt={props.card.name}
-              fill
-              className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
-              sizes="(max-width: 768px) 100vw, 33vw"
-              style={{ filter: "none" }}
-            />
-          </div>
-          <div className="absolute inset-0" style={{ transform: "rotateY(180deg)", backfaceVisibility: "hidden" }}>
-            <NextImage
-              loader={passthroughLoader}
-              src={props.card.image_url || `/static/cards/${String(props.card.id ?? 0).padStart(2,'0')}.jpg`}
-              alt={props.card.name}
-              fill
-              className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
-              sizes="(max-width: 768px) 100vw, 33vw"
-              style={{ filter: "blur(12px) saturate(0.85) brightness(0.9)" }}
-            />
-          </div>
-        </motion.div>
+        <div className="absolute inset-0">
+          <NextImage
+            loader={passthroughLoader}
+            src={props.card.image_url || `/static/cards/${String(props.card.id ?? 0).padStart(2,'0')}.jpg`}
+            alt={props.card.name}
+            fill
+            className={`${props.is_reversed ? "rotate-180" : ""} object-cover`}
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ filter: "none" }}
+          />
+        </div>
         <div className="card-namebar text-xs font-medium">{props.card.name}</div>
       </div>
     </motion.button>
