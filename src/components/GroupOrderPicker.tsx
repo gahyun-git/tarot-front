@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "@/lib/i18n";
 
 type AB = "A"|"B"|"C";
@@ -15,6 +15,18 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
   const imgFor: Record<AB, string> = { A: "/card-a.png", B: "/card-b.png", C: "/card-c.png" };
   const [pulseKey, setPulseKey] = useState(0);
   const [pulsing, setPulsing] = useState(false);
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    try {
+      const touch = typeof window !== "undefined" && (
+        "ontouchstart" in window ||
+        (navigator as Navigator & { maxTouchPoints?: number }).maxTouchPoints! > 0 ||
+        window.matchMedia('(pointer: coarse)').matches
+      );
+      setIsTouch(Boolean(touch));
+    } catch { setIsTouch(false); }
+  }, []);
 
   // desktop handlers removed
 
@@ -27,18 +39,19 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
             <div
               key={`m-src-${k}`}
               className="stack-src"
-              draggable
-              onDragStart={(e)=>{ e.dataTransfer.setData('text/x-card', k); e.dataTransfer.effectAllowed='move'; dragStartRef.current = { x: e.clientX, y: e.clientY }; }}
-              onTouchStart={()=>{ dragKeyRef.current = k; }}
-              onTouchMove={(e)=>{
+              draggable={!isTouch}
+              onDragStart={!isTouch ? ((e)=>{ e.dataTransfer.setData('text/x-card', k); e.dataTransfer.effectAllowed='move'; dragStartRef.current = { x: e.clientX, y: e.clientY }; }) : undefined}
+              onTouchStart={isTouch ? (()=>{ dragKeyRef.current = k; }) : undefined}
+              onTouchMove={isTouch ? ((e)=>{
+                e.preventDefault();
                 const t = e.touches[0];
                 const el = document.elementFromPoint(t.clientX, t.clientY) as HTMLElement | null;
                 if (el && el.closest('.stack-target')) {
                   // highlight target when hovering
                   (el.closest('.stack-target') as HTMLElement).classList.add('space-target-pulse');
                 }
-              }}
-              onTouchEnd={(e)=>{
+              }) : undefined}
+              onTouchEnd={isTouch ? ((e)=>{
                 const k2 = dragKeyRef.current; dragKeyRef.current = null;
                 const t = e.changedTouches[0];
                 const el = document.elementFromPoint(t.clientX, t.clientY) as HTMLElement | null;
@@ -53,15 +66,18 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
                   setPulsing(true); setPulseKey(v=>v+1); setTimeout(()=> setPulsing(false), 420);
                 }
                 document.querySelector('.stack-target')?.classList.remove('space-target-pulse');
-              }}
+              }) : undefined}
               title={t(`group.${k}.label`)}
+              style={{ WebkitUserSelect: 'none', userSelect: 'none', WebkitTouchCallout: 'none', WebkitUserDrag: 'none' as unknown as string }}
             >
               <div className="stack-card-img" style={{ backgroundImage: `url(${imgFor[k]})` }} />
               <div className="stack-card-badge">{t(`group.${k}.label`)}</div>
             </div>
           ))}
         </div>
-        <div className={`stack-target ${pulsing ? 'space-target-pulse' : ''}`} onDragOver={(e)=>{ e.preventDefault(); }} onDrop={(e)=>{
+        <div className={`stack-target ${pulsing ? 'space-target-pulse' : ''}`}
+             onDragOver={(e)=>{ e.preventDefault(); }}
+             onDrop={(e)=>{
           e.preventDefault();
           // no animation; rect is unused
           const key = (e.dataTransfer.getData('text/x-card')||'A') as AB;
@@ -78,7 +94,9 @@ export default function GroupOrderPicker({ onChange }: { value: Order; onChange:
           setPulsing(true);
           setPulseKey((v)=> v+1);
           setTimeout(()=> setPulsing(false), 420);
-        }}>
+        }}
+             onTouchMove={isTouch ? ((e)=>{ e.preventDefault(); }) : undefined}
+        >
           <div className="stack-target-actions">
             <button type="button" className="btn-outline btn-reset" onClick={()=>{ setPlaced([]); onChange(["B","C","A"] as Order); }}>{t('picker.reset')}</button>
           </div>

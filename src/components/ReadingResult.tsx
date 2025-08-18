@@ -215,7 +215,7 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           className="inline-block"
           aria-label="Buy me a coffee"
         >
-          <img
+          <img 
             src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=go4it&button_colour=BD5FFF&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00"
             alt="Buy me a coffee"
             width={280}
