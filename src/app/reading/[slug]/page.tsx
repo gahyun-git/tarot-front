@@ -14,8 +14,9 @@ async function getData(slug: string): Promise<FullReadingResult> {
   return res.json();
 }
 
-export default async function Page({ params }: { params: { slug: string } }) {
-  const data = await getData(params.slug);
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const data = await getData(slug);
   return (
     <main style={{ padding: 24, maxWidth: 860, margin: "0 auto" }}>
       <h1>Tarot Reading</h1>
