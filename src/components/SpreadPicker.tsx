@@ -39,7 +39,34 @@ export default function SpreadPicker() {
         console.log('Redirecting to:', `/reading/${d.id}`);
         window.location.href = `/reading/${d.id}`;
       } else {
-        console.error('No id in daily response');
+        console.error('No id in daily response, creating local reading');
+        // 로컬 히스토리에 저장하고 이동
+        const localReading = {
+          id: `daily-${Date.now()}`,
+          question: "오늘의 카드",
+          order: ["A", "B", "C"] as const,
+          count: 1,
+          items: [{
+            position: 1,
+            is_reversed: d.card?.is_reversed || false,
+            card: {
+              id: d.card?.id || 0,
+              name: d.card?.name || "Unknown",
+              arcana: d.card?.arcana || "Major",
+              suit: null,
+              image_url: d.card?.image_url || null,
+              upright_meaning: d.card?.upright_meaning || null,
+              reversed_meaning: d.card?.reversed_meaning || null,
+            }
+          }]
+        };
+        try {
+          const { addToHistory } = await import('@/lib/history');
+          const localId = addToHistory(localReading);
+          window.location.href = `/reading/local/${localId}`;
+        } catch {
+          console.error('Failed to save to history');
+        }
       }
     } catch (e) {
       console.error('Daily error:', e);
