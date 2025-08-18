@@ -44,7 +44,7 @@ export default function SpreadPicker() {
         const localReading = {
           id: `daily-${Date.now()}`,
           question: "오늘의 카드",
-          order: ["A", "B", "C"] as const,
+          order: ["A", "B", "C"] as ("A" | "B" | "C")[],
           count: 1,
           items: [{
             position: 1,

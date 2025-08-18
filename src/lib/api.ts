@@ -163,7 +163,24 @@ export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}
   const r = await fetch(url);
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error((data as ErrorBody)?.error?.message || `${r.status} ${r.statusText}`);
-  return data as { id?: string; items?: unknown[]; text?: string };
+  return data as {
+    id?: string;
+    date?: string;
+    lang?: string;
+    card?: {
+      id?: number;
+      name?: string;
+      arcana?: string;
+      is_reversed?: boolean;
+      image_url?: string;
+      upright_meaning?: string[];
+      reversed_meaning?: string[];
+    };
+    summary?: string;
+    llm_used?: boolean;
+    items?: unknown[];
+    text?: string;
+  };
 }
 
 export async function getCardMeanings(cardId: number, params: { lang?: string } = {}) {
