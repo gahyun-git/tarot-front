@@ -156,9 +156,9 @@ export async function getDaily(params: { lang?: string; use_llm?: boolean } = {}
   if (params.lang) search.set("lang", params.lang);
   if (typeof params.use_llm === "boolean") search.set("use_llm", String(params.use_llm));
   const q = search.toString();
-  // daily는 내부 프록시(/api/reading/daily)로 직접 호출해 호환성 확보
-  const base = PUBLIC_API_BASE || "/api/reading";
-  const path = `/daily`;
+  // daily는 항상 /reading/daily 경로 사용 (PUBLIC_API_BASE가 있어도 동일)
+  const base = PUBLIC_API_BASE || "/api/tarot";
+  const path = `/reading/daily`;
   const url = `${base}${path}${q ? `?${q}` : ""}`;
   const r = await fetch(url);
   const data = await r.json().catch(() => ({}));
