@@ -206,6 +206,23 @@ export default function ReadingResult({ data }: { data: ReadingResponse }) {
           </details>
         )}
       </section>
+      {/* Support link */}
+      <div className="max-w-5xl mx-auto mt-6 flex justify-center">
+        <a
+          href="https://www.buymeacoffee.com/go4it"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block"
+          aria-label="Buy me a coffee"
+        >
+          <img
+            src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=go4it&button_colour=BD5FFF&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00"
+            alt="Buy me a coffee"
+            width={280}
+            height={64}
+          />
+        </a>
+      </div>
     </section>
   );
 }
