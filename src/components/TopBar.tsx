@@ -15,6 +15,7 @@ export default function TopBar() {
           <Link href="/" className="space-brand">
             <span>🔮 Tarot</span>
           </Link>
+          <Link href="/cards" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.cards")}</Link>
           <Link href="/about" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.about")}</Link>
           <Link href="/privacy" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.privacy")}</Link>
           <Link href="/terms" className="hidden sm:inline-block hover:underline underline-offset-4 opacity-90 hover:opacity-100">{t("nav.terms")}</Link>
